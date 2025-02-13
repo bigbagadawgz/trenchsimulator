@@ -267,8 +267,8 @@ const MarketSimulator = () => {
           </Card>
 
           <div className="flex-1 space-y-6">
-            <div className="relative text-center mb-12">
-              <div className="absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 w-24 h-24 opacity-50">
+            <div className="relative text-center mb-12 flex items-center justify-center gap-6">
+              <div className="w-24 h-24 opacity-50">
                 <svg viewBox="0 0 100 100" className="w-full h-full fill-[#4AE3B5]/20">
                   <path d="M50 0 C40 20 20 40 20 60 C20 80 35 100 50 100 C65 100 80 80 80 60 C80 40 60 20 50 0Z" />
                   <circle cx="50" cy="45" r="12" />
