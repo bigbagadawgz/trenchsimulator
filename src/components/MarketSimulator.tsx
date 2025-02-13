@@ -352,26 +352,45 @@ const MarketSimulator = () => {
         <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#4AE3B5] to-transparent opacity-50" />
       </div>
 
-      <a 
-        href="https://x.com/trenchsimulator" 
-        target="_blank" 
-        rel="noopener noreferrer" 
-        className="fixed top-4 right-4 z-50"
-      >
-        <Button 
-          variant="ghost" 
-          size="icon" 
-          className="rounded-full bg-black/40 backdrop-blur-xl border border-[#4AE3B5]/20 hover:bg-black/60"
+      <div className="fixed top-4 right-4 z-50 flex gap-2">
+        <a 
+          href="#" 
+          target="_blank" 
+          rel="noopener noreferrer" 
+          className="block"
         >
-          <svg
-            viewBox="0 0 24 24"
-            className="h-5 w-5 text-[#4AE3B5]"
-            fill="currentColor"
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="rounded-full bg-black/40 backdrop-blur-xl border border-[#4AE3B5]/20 hover:bg-black/60"
           >
-            <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
-          </svg>
-        </Button>
-      </a>
+            <img
+              src="/lovable-uploads/ee96107d-d67d-4f92-85a3-3745e738bac6.png"
+              alt="DEX Screener"
+              className="h-5 w-5 text-[#4AE3B5] invert"
+            />
+          </Button>
+        </a>
+        <a 
+          href="https://x.com/trenchsimulator" 
+          target="_blank" 
+          rel="noopener noreferrer" 
+        >
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="rounded-full bg-black/40 backdrop-blur-xl border border-[#4AE3B5]/20 hover:bg-black/60"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              className="h-5 w-5 text-[#4AE3B5]"
+              fill="currentColor"
+            >
+              <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+            </svg>
+          </Button>
+        </a>
+      </div>
 
       <div className="relative z-10 container mx-auto p-6">
         <div className="flex flex-col gap-8 lg:flex-row">
