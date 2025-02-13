@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -425,7 +424,7 @@ const MarketSimulator = () => {
           </Card>
 
           <div className="flex-1 space-y-6">
-            <div className="relative text-center mb-12 flex items-center justify-center gap-6">
+            <div className="relative text-center mb-12 flex flex-col items-center justify-center gap-2">
               <div className="w-32 h-32 opacity-80">
                 <svg viewBox="0 0 100 100" className="w-full h-full">
                   <path 
@@ -489,6 +488,9 @@ const MarketSimulator = () => {
                   TRENCH SIMULATOR
                 </span>
               </h1>
+              <p className="font-['Dancing_Script'] text-xl text-[#4AE3B5] animate-[text-glow_2s_ease-in-out_infinite] [text-shadow:0_0_10px_rgba(74,227,181,0.5),0_0_20px_rgba(74,227,181,0.3),0_0_30px_rgba(74,227,181,0.2)]">
+                "Trenching for Dummies"
+              </p>
             </div>
 
             <Card className="p-6 bg-black/40 backdrop-blur-xl border border-[#4AE3B5]/20 shadow-[0_0_15px_rgba(74,227,181,0.1)]">
