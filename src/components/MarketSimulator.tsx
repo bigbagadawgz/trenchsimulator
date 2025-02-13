@@ -1,12 +1,9 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
-import { supabase } from "@/integrations/supabase/client";
 import { Twitter } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
 
 const MarketSimulator = () => {
   const [balance, setBalance] = useState(200);
@@ -26,52 +23,6 @@ const MarketSimulator = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationFrameRef = useRef<number | null>(null);
   const { toast } = useToast();
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    const loadUserData = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      
-      if (!user) {
-        navigate('/');
-        return;
-      }
-
-      const { data: investmentData } = await supabase
-        .from('user_investments')
-        .select('*')
-        .single();
-
-      if (investmentData) {
-        setBalance(investmentData.balance);
-        setInvestment(investmentData.investment);
-        setInvestmentPrice(investmentData.investment_price);
-      } else {
-        await supabase
-          .from('user_investments')
-          .insert([{
-            user_id: user.id,
-            balance: 200,
-            investment: 0,
-            investment_price: 0
-          }]);
-      }
-
-      const { data: trades } = await supabase
-        .from('trade_history')
-        .select('*')
-        .order('timestamp', { ascending: true });
-
-      if (trades) {
-        setTradeHistory(trades.map(trade => ({
-          ...trade,
-          timestamp: new Date(trade.timestamp)
-        })));
-      }
-    };
-
-    loadUserData();
-  }, [navigate]);
 
   useEffect(() => {
     const generateNewCandle = () => {
@@ -272,42 +223,22 @@ const MarketSimulator = () => {
       .reduce((total, trade) => total + trade.pnl, 0);
   };
 
-  const handleBuy = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
-      navigate('/');
-      return;
-    }
-
+  const handleBuy = () => {
     const amount = Math.min(balance, Number(buyAmount));
     if (amount > 0 && !isNaN(amount)) {
       setBalance(prev => prev - amount);
       setInvestment(prev => prev + amount);
       setInvestmentPrice(currentPrice);
 
-      await supabase
-        .from('user_investments')
-        .upsert({
-          user_id: user.id,
-          balance: balance - amount,
-          investment: investment + amount,
-          investment_price: currentPrice
-        });
-
       const newTrade = {
-        user_id: user.id,
         type: 'BUY',
         amount: amount,
         price: currentPrice,
-        timestamp: new Date().toISOString(),
+        timestamp: new Date(),
         pnl: null
       };
 
-      await supabase
-        .from('trade_history')
-        .insert(newTrade);
-
-      setTradeHistory(prev => [...prev, {...newTrade, timestamp: new Date(newTrade.timestamp)}]);
+      setTradeHistory(prev => [...prev, newTrade]);
       
       toast({
         title: "Purchase Successful",
@@ -316,13 +247,7 @@ const MarketSimulator = () => {
     }
   };
 
-  const handleSell = async (percentage = 100) => {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
-      navigate('/');
-      return;
-    }
-
+  const handleSell = (percentage = 100) => {
     if (investment > 0) {
       const sellAmount = (investment * percentage) / 100;
       const pnl = calculateProfitLoss() * (percentage / 100);
@@ -332,47 +257,15 @@ const MarketSimulator = () => {
       setInvestment(prev => percentage === 100 ? 0 : prev - sellAmount);
       setInvestmentPrice(percentage === 100 ? 0 : investmentPrice);
 
-      await supabase
-        .from('user_investments')
-        .upsert({
-          user_id: user.id,
-          balance: balance + returnAmount,
-          investment: percentage === 100 ? 0 : investment - sellAmount,
-          investment_price: percentage === 100 ? 0 : investmentPrice
-        });
-
       const newTrade = {
-        user_id: user.id,
         type: 'SELL',
         amount: sellAmount,
         price: currentPrice,
-        timestamp: new Date().toISOString(),
+        timestamp: new Date(),
         pnl: pnl
       };
 
-      await supabase
-        .from('trade_history')
-        .insert(newTrade);
-
-      setTradeHistory(prev => [...prev, {...newTrade, timestamp: new Date(newTrade.timestamp)}]);
-
-      if (user) {
-        const { data: currentUserData, error: fetchError } = await supabase
-          .from('users')
-          .select('current_profit')
-          .eq('id', user.id)
-          .single();
-
-        if (!fetchError && currentUserData) {
-          const currentProfit = Number(currentUserData?.current_profit || 0);
-          const newProfit = currentProfit + pnl;
-
-          await supabase
-            .from('users')
-            .update({ current_profit: newProfit })
-            .eq('id', user.id);
-        }
-      }
+      setTradeHistory(prev => [...prev, newTrade]);
 
       toast({
         title: "Trade Completed",
