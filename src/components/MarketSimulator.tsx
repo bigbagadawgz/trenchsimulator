@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -320,17 +319,6 @@ const MarketSimulator = () => {
         <div className="absolute inset-0 bg-[linear-gradient(to_right,transparent,rgba(74,227,181,0.05)_50%,transparent)] animate-[slide_20s_linear_infinite]" />
         <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#4AE3B5] to-transparent opacity-50" />
         <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#4AE3B5] to-transparent opacity-50" />
-      </div>
-
-      <div className="fixed bottom-4 right-4 z-50 w-80">
-        <iframe
-          src="YOUR_SPOTIFY_PLAYLIST_EMBED_URL"
-          width="100%"
-          height="80"
-          frameBorder="0"
-          allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-          className="rounded-lg shadow-lg"
-        ></iframe>
       </div>
 
       <a 
