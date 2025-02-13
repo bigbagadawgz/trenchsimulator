@@ -223,12 +223,20 @@ const MarketSimulator = () => {
       .reduce((total, trade) => total + trade.pnl, 0);
   };
 
+  const calculateAverageEntryPrice = () => {
+    const buyTrades = tradeHistory.filter(trade => trade.type === 'BUY');
+    if (buyTrades.length === 0) return 0;
+
+    const totalInvested = buyTrades.reduce((sum, trade) => sum + (trade.amount * trade.price), 0);
+    const totalAmount = buyTrades.reduce((sum, trade) => sum + trade.amount, 0);
+    return totalInvested / totalAmount;
+  };
+
   const handleBuy = () => {
     const amount = Math.min(balance, Number(buyAmount));
     if (amount > 0 && !isNaN(amount)) {
       setBalance(prev => prev - amount);
       setInvestment(prev => prev + amount);
-      setInvestmentPrice(currentPrice);
 
       const newTrade = {
         type: 'BUY',
@@ -238,7 +246,12 @@ const MarketSimulator = () => {
         pnl: null
       };
 
-      setTradeHistory(prev => [...prev, newTrade]);
+      setTradeHistory(prev => {
+        const newHistory = [...prev, newTrade];
+        const avgPrice = calculateAverageEntryPrice();
+        setInvestmentPrice(avgPrice);
+        return newHistory;
+      });
       
       toast({
         title: "Purchase Successful",
@@ -255,7 +268,11 @@ const MarketSimulator = () => {
       
       setBalance(prev => prev + returnAmount);
       setInvestment(prev => percentage === 100 ? 0 : prev - sellAmount);
-      setInvestmentPrice(percentage === 100 ? 0 : investmentPrice);
+      
+      // Only reset investment price if selling everything
+      if (percentage === 100) {
+        setInvestmentPrice(0);
+      }
 
       const newTrade = {
         type: 'SELL',
