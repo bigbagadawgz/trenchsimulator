@@ -122,9 +122,10 @@ const MarketSimulator = () => {
     };
 
     const drawAveragePrice = (minPrice: number, maxPrice: number) => {
-      if (investment > 0 && investmentPrice > 0) {
+      const avgPrice = calculateAverageEntryPrice();
+      if (investment > 0 && avgPrice > 0) {
         const candleHeight = canvas.height - 60;
-        const y = candleHeight - ((investmentPrice - minPrice) / (maxPrice - minPrice) * candleHeight) + 30;
+        const y = candleHeight - ((avgPrice - minPrice) / (maxPrice - minPrice) * candleHeight) + 30;
         
         // Draw dashed line for average price (now in yellow)
         ctx.beginPath();
@@ -139,7 +140,7 @@ const MarketSimulator = () => {
         // Draw label (also in yellow)
         ctx.fillStyle = '#FFD700';
         ctx.font = '12px Segoe UI';
-        ctx.fillText(`Avg: ${investmentPrice.toFixed(2)}`, canvas.width - 100, y - 5);
+        ctx.fillText(`Avg: ${avgPrice.toFixed(2)}`, canvas.width - 100, y - 5);
       }
     };
 
@@ -176,7 +177,7 @@ const MarketSimulator = () => {
         }
       });
 
-      // Draw average price line
+      // Draw average price line using the calculated average
       drawAveragePrice(minPrice, maxPrice);
       
       // Draw trade markers
@@ -204,7 +205,7 @@ const MarketSimulator = () => {
         cancelAnimationFrame(animationFrameRef.current);
       }
     };
-  }, [priceHistory, tradeHistory, investment, investmentPrice]);
+  }, [priceHistory, tradeHistory, investment]);
 
   const formatPnL = (value: number) => {
     const absValue = Math.abs(value);
