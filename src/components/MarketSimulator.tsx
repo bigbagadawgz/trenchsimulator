@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -192,13 +191,7 @@ const MarketSimulator = () => {
     if (investment > 0) {
       const sellAmount = (investment * percentage) / 100;
       const pnl = calculateProfitLoss() * (percentage / 100);
-      let returnAmount;
-      
-      if (pnl >= 0) {
-        returnAmount = investment + pnl;
-      } else {
-        returnAmount = investment + pnl;
-      }
+      let returnAmount = investment + pnl;
       
       setBalance(prev => prev + returnAmount);
       setInvestment(prev => percentage === 100 ? 0 : prev - sellAmount);
@@ -206,19 +199,35 @@ const MarketSimulator = () => {
       
       const { data: userData } = await supabase.auth.getUser();
       if (userData?.user) {
-        // First get the current profit
-        const { data: currentUserData } = await supabase
+        const { data: currentUserData, error: fetchError } = await supabase
           .from('users')
           .select('current_profit')
           .eq('id', userData.user.id)
           .single();
-        
-        // Update by adding the new PnL to the existing profit
-        const currentProfit = currentUserData?.current_profit || 0;
-        await supabase
+
+        if (fetchError) {
+          console.error('Error fetching current profit:', fetchError);
+          return;
+        }
+
+        const currentProfit = Number(currentUserData?.current_profit || 0);
+        const newProfit = currentProfit + pnl;
+
+        console.log('PnL Update:', {
+          currentProfit,
+          pnl,
+          newProfit
+        });
+
+        const { error: updateError } = await supabase
           .from('users')
-          .update({ current_profit: currentProfit + pnl })
+          .update({ current_profit: newProfit })
           .eq('id', userData.user.id);
+
+        if (updateError) {
+          console.error('Error updating profit:', updateError);
+          return;
+        }
       }
       
       setTradeHistory(prev => [...prev, {
@@ -228,6 +237,11 @@ const MarketSimulator = () => {
         timestamp: new Date(),
         pnl: pnl
       }]);
+
+      toast({
+        title: "Trade Completed",
+        description: `Sold ${sellAmount.toFixed(2)} SOL with PnL: ${pnl.toFixed(2)} SOL`,
+      });
     }
   };
 
