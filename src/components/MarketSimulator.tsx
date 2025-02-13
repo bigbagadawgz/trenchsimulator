@@ -159,6 +159,12 @@ const MarketSimulator = () => {
     return pnl;
   };
 
+  const calculateTotalPnL = () => {
+    return tradeHistory
+      .filter(trade => trade.pnl !== null)
+      .reduce((total, trade) => total + trade.pnl, 0);
+  };
+
   const handleBuy = () => {
     const amount = Math.min(balance, Number(buyAmount));
     if (amount > 0 && !isNaN(amount)) {
@@ -229,7 +235,12 @@ const MarketSimulator = () => {
         <div className="flex flex-col gap-8 lg:flex-row">
           <Card className="w-full lg:w-[300px] h-fit bg-black/40 backdrop-blur-xl border border-[#4AE3B5]/20 shadow-[0_0_15px_rgba(74,227,181,0.1)] p-4">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-bold text-[#4AE3B5]">Trade History</h2>
+              <div className="flex items-center gap-4">
+                <h2 className="text-xl font-bold text-[#4AE3B5]">Trade History</h2>
+                <span className={`text-sm font-mono ${calculateTotalPnL() >= 0 ? 'text-[#4AE3B5]' : 'text-red-500'}`}>
+                  ({calculateTotalPnL().toFixed(2)} SOL)
+                </span>
+              </div>
               <Button 
                 variant="ghost" 
                 size="sm" 
