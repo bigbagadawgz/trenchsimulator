@@ -566,9 +566,9 @@ const MarketSimulator = () => {
         <Card className="bg-black/40 backdrop-blur-xl border border-[#4AE3B5]/20 p-4 space-y-3">
           <div className="flex items-center gap-3">
             <img 
-              src="/lovable-uploads/3a17d711-007f-4032-baee-8c9fdd982b9e.png" 
+              src="/lovable-uploads/14094ecc-0869-407c-9add-5d8fc6307cbb.png" 
               alt="Solana Logo" 
-              className="h-5 w-5 invert brightness-[10]" 
+              className="h-5 w-5" 
             />
             <span className="text-[#4AE3B5] font-medium">SOL:</span>
             <span className="text-white">${cryptoPrices.solana.toLocaleString()}</span>
