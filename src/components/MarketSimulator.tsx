@@ -365,7 +365,7 @@ const MarketSimulator = () => {
             className="rounded-full bg-black/40 backdrop-blur-xl border border-[#4AE3B5]/20 hover:bg-black/60"
           >
             <img
-              src="/lovable-uploads/6673fad7-7c70-42c0-b938-02c9ac6239b5.png"
+              src="/lovable-uploads/9c85f0b2-42df-4aab-b96b-a4f12b06f1a6.png"
               alt="DEX Screener"
               className="h-5 w-5 text-[#4AE3B5]"
             />
