@@ -213,8 +213,9 @@ const MarketSimulator = () => {
   };
 
   const calculateProfitLoss = () => {
-    if (investment <= 0 || investmentPrice <= 0) return 0;
-    const pnl = (investment * (currentPrice - investmentPrice) / investmentPrice);
+    const avgEntryPrice = calculateAverageEntryPrice();
+    if (investment <= 0 || avgEntryPrice <= 0) return 0;
+    const pnl = (investment * (currentPrice - avgEntryPrice) / avgEntryPrice);
     return pnl;
   };
 
