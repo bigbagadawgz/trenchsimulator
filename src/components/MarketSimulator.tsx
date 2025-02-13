@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -24,7 +23,6 @@ const MarketSimulator = () => {
   const animationFrameRef = useRef<number | null>(null);
   const { toast } = useToast();
 
-  // Handle market movements
   useEffect(() => {
     const generateNewCandle = () => {
       const lastCandle = priceHistory[priceHistory.length - 1];
@@ -63,7 +61,6 @@ const MarketSimulator = () => {
     return () => clearInterval(interval);
   }, [currentPrice]);
 
-  // Draw the chart
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -210,7 +207,6 @@ const MarketSimulator = () => {
 
   return (
     <div className="min-h-screen relative bg-black overflow-hidden">
-      {/* Animated Background */}
       <div className="absolute inset-0 z-0">
         <div className="absolute inset-0 bg-[linear-gradient(40deg,transparent_25%,rgba(74,227,181,0.2)_50%,transparent_75%)] animate-[pulse_15s_ease-in-out_infinite]" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(74,227,181,0.1),transparent_50%)] animate-[pulse_10s_ease-in-out_infinite]" />
@@ -219,10 +215,8 @@ const MarketSimulator = () => {
         <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#4AE3B5] to-transparent opacity-50" />
       </div>
 
-      {/* Main Content */}
       <div className="relative z-10 container mx-auto p-6">
         <div className="flex flex-col gap-8 lg:flex-row">
-          {/* Trade History Panel */}
           <Card className="w-full lg:w-[300px] h-fit bg-black/40 backdrop-blur-xl border border-[#4AE3B5]/20 shadow-[0_0_15px_rgba(74,227,181,0.1)] p-4">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-bold text-[#4AE3B5]">Trade History</h2>
@@ -272,13 +266,24 @@ const MarketSimulator = () => {
             )}
           </Card>
 
-          {/* Main Content */}
           <div className="flex-1 space-y-6">
-            <h1 className="text-5xl font-bold text-center text-[#4AE3B5] mb-8 tracking-tight">
-              TRENCH SIMULATOR
-            </h1>
+            <div className="relative text-center mb-12">
+              <div className="absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 w-24 h-24 opacity-50">
+                <svg viewBox="0 0 100 100" className="w-full h-full fill-[#4AE3B5]/20">
+                  <path d="M50 0 C40 20 20 40 20 60 C20 80 35 100 50 100 C65 100 80 80 80 60 C80 40 60 20 50 0Z" />
+                  <circle cx="50" cy="45" r="12" />
+                  <rect x="42" y="55" width="16" height="25" rx="8" />
+                  <path d="M35 70 C25 75 25 85 35 90 M65 70 C75 75 75 85 65 90" strokeWidth="4" stroke="#4AE3B5" fill="none"/>
+                </svg>
+              </div>
+              <h1 className="text-5xl font-bold text-[#4AE3B5] tracking-tight relative">
+                <span className="absolute inset-0 blur-lg animate-pulse">TRENCH SIMULATOR</span>
+                <span className="relative animate-[text-glow_2s_ease-in-out_infinite] [text-shadow:0_0_10px_rgba(74,227,181,0.5),0_0_20px_rgba(74,227,181,0.3),0_0_30px_rgba(74,227,181,0.2)]">
+                  TRENCH SIMULATOR
+                </span>
+              </h1>
+            </div>
 
-            {/* Chart Container */}
             <Card className="p-6 bg-black/40 backdrop-blur-xl border border-[#4AE3B5]/20 shadow-[0_0_15px_rgba(74,227,181,0.1)]">
               <canvas 
                 ref={canvasRef}
@@ -288,7 +293,6 @@ const MarketSimulator = () => {
               />
             </Card>
 
-            {/* Stats */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <Card className="p-4 text-center bg-black/40 backdrop-blur-xl border border-[#4AE3B5]/20">
                 <div className="text-sm text-gray-400 mb-1">BALANCE</div>
@@ -310,7 +314,6 @@ const MarketSimulator = () => {
               </Card>
             </div>
 
-            {/* Controls */}
             <Card className="p-6 bg-black/40 backdrop-blur-xl border border-[#4AE3B5]/20 shadow-[0_0_15px_rgba(74,227,181,0.1)]">
               <div className="flex flex-wrap gap-4 justify-center items-center">
                 <div className="flex items-center gap-2">
