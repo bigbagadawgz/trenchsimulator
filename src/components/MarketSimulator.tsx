@@ -5,6 +5,7 @@ import { Card } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Twitter } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const MarketSimulator = () => {
   const [balance, setBalance] = useState(200);
@@ -24,6 +25,52 @@ const MarketSimulator = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationFrameRef = useRef<number | null>(null);
   const { toast } = useToast();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const loadUserData = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        navigate('/');
+        return;
+      }
+
+      const { data: investmentData } = await supabase
+        .from('user_investments')
+        .select('*')
+        .single();
+
+      if (investmentData) {
+        setBalance(investmentData.balance);
+        setInvestment(investmentData.investment);
+        setInvestmentPrice(investmentData.investment_price);
+      } else {
+        await supabase
+          .from('user_investments')
+          .insert([{
+            user_id: user.id,
+            balance: 200,
+            investment: 0,
+            investment_price: 0
+          }]);
+      }
+
+      const { data: trades } = await supabase
+        .from('trade_history')
+        .select('*')
+        .order('timestamp', { ascending: true });
+
+      if (trades) {
+        setTradeHistory(trades.map(trade => ({
+          ...trade,
+          timestamp: new Date(trade.timestamp)
+        })));
+      }
+    };
+
+    loadUserData();
+  }, [navigate]);
 
   useEffect(() => {
     const generateNewCandle = () => {
@@ -224,78 +271,107 @@ const MarketSimulator = () => {
       .reduce((total, trade) => total + trade.pnl, 0);
   };
 
-  const handleBuy = () => {
+  const handleBuy = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      navigate('/');
+      return;
+    }
+
     const amount = Math.min(balance, Number(buyAmount));
     if (amount > 0 && !isNaN(amount)) {
       setBalance(prev => prev - amount);
       setInvestment(prev => prev + amount);
       setInvestmentPrice(currentPrice);
-      
-      toast({
-        title: "Purchase Successful",
-        description: `Bought ${amount.toFixed(2)} SOL at ${currentPrice.toFixed(2)}`,
-      });
 
-      setTradeHistory(prev => [...prev, {
+      await supabase
+        .from('user_investments')
+        .upsert({
+          user_id: user.id,
+          balance: balance - amount,
+          investment: investment + amount,
+          investment_price: currentPrice
+        });
+
+      const trade = {
+        user_id: user.id,
         type: 'BUY',
         amount: amount,
         price: currentPrice,
         timestamp: new Date(),
         pnl: null
-      }]);
+      };
+
+      await supabase
+        .from('trade_history')
+        .insert([trade]);
+
+      setTradeHistory(prev => [...prev, trade]);
+      
+      toast({
+        title: "Purchase Successful",
+        description: `Bought ${amount.toFixed(2)} SOL at ${currentPrice.toFixed(2)}`,
+      });
     }
   };
 
   const handleSell = async (percentage = 100) => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      navigate('/');
+      return;
+    }
+
     if (investment > 0) {
       const sellAmount = (investment * percentage) / 100;
       const pnl = calculateProfitLoss() * (percentage / 100);
-      let returnAmount = investment + pnl;
+      const returnAmount = investment + pnl;
       
       setBalance(prev => prev + returnAmount);
       setInvestment(prev => percentage === 100 ? 0 : prev - sellAmount);
       setInvestmentPrice(percentage === 100 ? 0 : investmentPrice);
-      
-      const { data: userData } = await supabase.auth.getUser();
-      if (userData?.user) {
-        const { data: currentUserData, error: fetchError } = await supabase
-          .from('users')
-          .select('current_profit')
-          .eq('id', userData.user.id)
-          .single();
 
-        if (fetchError) {
-          console.error('Error fetching current profit:', fetchError);
-          return;
-        }
-
-        const currentProfit = Number(currentUserData?.current_profit || 0);
-        const newProfit = currentProfit + pnl;
-
-        console.log('PnL Update:', {
-          currentProfit,
-          pnl,
-          newProfit
+      await supabase
+        .from('user_investments')
+        .upsert({
+          user_id: user.id,
+          balance: balance + returnAmount,
+          investment: percentage === 100 ? 0 : investment - sellAmount,
+          investment_price: percentage === 100 ? 0 : investmentPrice
         });
 
-        const { error: updateError } = await supabase
-          .from('users')
-          .update({ current_profit: newProfit })
-          .eq('id', userData.user.id);
-
-        if (updateError) {
-          console.error('Error updating profit:', updateError);
-          return;
-        }
-      }
-      
-      setTradeHistory(prev => [...prev, {
+      const trade = {
+        user_id: user.id,
         type: 'SELL',
-        amount: investment,
+        amount: sellAmount,
         price: currentPrice,
         timestamp: new Date(),
         pnl: pnl
-      }]);
+      };
+
+      await supabase
+        .from('trade_history')
+        .insert([trade]);
+
+      setTradeHistory(prev => [...prev, trade]);
+
+      if (user) {
+        const { data: currentUserData, error: fetchError } = await supabase
+          .from('users')
+          .select('current_profit')
+          .eq('id', user.id)
+          .single();
+
+        if (!fetchError && currentUserData) {
+          const currentProfit = Number(currentUserData?.current_profit || 0);
+          const newProfit = currentProfit + pnl;
+
+          await supabase
+            .from('users')
+            .update({ current_profit: newProfit })
+            .eq('id', user.id);
+        }
+      }
 
       toast({
         title: "Trade Completed",
@@ -314,7 +390,6 @@ const MarketSimulator = () => {
         <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#4AE3B5] to-transparent opacity-50" />
       </div>
 
-      {/* Twitter Link */}
       <a 
         href="https://x.com/trenchsimulator" 
         target="_blank" 

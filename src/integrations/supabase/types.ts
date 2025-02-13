@@ -9,6 +9,73 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      trade_history: {
+        Row: {
+          amount: number
+          id: string
+          pnl: number | null
+          price: number
+          timestamp: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          id?: string
+          pnl?: number | null
+          price: number
+          timestamp?: string
+          type: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          id?: string
+          pnl?: number | null
+          price?: number
+          timestamp?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trade_history_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_investments: {
+        Row: {
+          balance: number
+          investment: number
+          investment_price: number
+          user_id: string
+        }
+        Insert: {
+          balance?: number
+          investment?: number
+          investment_price?: number
+          user_id: string
+        }
+        Update: {
+          balance?: number
+          investment?: number
+          investment_price?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_investments_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       users: {
         Row: {
           created_at: string
