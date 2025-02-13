@@ -567,7 +567,7 @@ const MarketSimulator = () => {
             <img 
               src="/lovable-uploads/3a17d711-007f-4032-baee-8c9fdd982b9e.png" 
               alt="Solana Logo" 
-              className="h-5 w-5" 
+              className="h-5 w-5 invert brightness-[10]" 
             />
             <span className="text-[#4AE3B5] font-medium">SOL:</span>
             <span className="text-white">${cryptoPrices.solana.toLocaleString()}</span>
