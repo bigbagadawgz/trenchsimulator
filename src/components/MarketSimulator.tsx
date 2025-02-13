@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -49,8 +50,8 @@ const MarketSimulator = () => {
     // Fetch immediately
     fetchCryptoPrices();
 
-    // Then fetch every 5 seconds instead of every minute
-    const interval = setInterval(fetchCryptoPrices, 5000);
+    // Fetch every minute instead of every 5 seconds to respect API limits
+    const interval = setInterval(fetchCryptoPrices, 60000);
 
     return () => clearInterval(interval);
   }, []);
