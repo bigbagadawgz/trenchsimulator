@@ -17,7 +17,8 @@ const Leaderboard = () => {
       
       if (error) throw error;
       return data;
-    }
+    },
+    refetchInterval: 2000 // Refresh every 2 seconds
   });
 
   if (isLoading) {
