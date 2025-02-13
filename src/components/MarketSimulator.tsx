@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -92,6 +91,63 @@ const MarketSimulator = () => {
       );
     };
 
+    const drawTradeMarkers = (candleX: number, width: number, minPrice: number, maxPrice: number) => {
+      const candleHeight = canvas.height - 60;
+      const priceToY = (price: number) => candleHeight - ((price - minPrice) / (maxPrice - minPrice) * candleHeight) + 30;
+
+      tradeHistory.forEach(trade => {
+        const tradeTimestamp = trade.timestamp.getTime();
+        const relevantCandle = priceHistory.find(candle => 
+          Math.abs(candle.timestamp - tradeTimestamp) < 1000
+        );
+        
+        if (relevantCandle) {
+          const index = priceHistory.indexOf(relevantCandle);
+          const x = index * width + 20;
+          const y = priceToY(trade.price);
+
+          // Draw trade marker
+          ctx.beginPath();
+          if (trade.type === 'BUY') {
+            ctx.fillStyle = '#4AE3B5';
+            // Draw triangle pointing up
+            ctx.moveTo(x + width / 2, y + 10);
+            ctx.lineTo(x + width / 2 - 5, y + 15);
+            ctx.lineTo(x + width / 2 + 5, y + 15);
+          } else {
+            ctx.fillStyle = '#FF6B6B';
+            // Draw triangle pointing down
+            ctx.moveTo(x + width / 2, y - 10);
+            ctx.lineTo(x + width / 2 - 5, y - 15);
+            ctx.lineTo(x + width / 2 + 5, y - 15);
+          }
+          ctx.fill();
+        }
+      });
+    };
+
+    const drawAveragePrice = (minPrice: number, maxPrice: number) => {
+      if (investment > 0 && investmentPrice > 0) {
+        const candleHeight = canvas.height - 60;
+        const y = candleHeight - ((investmentPrice - minPrice) / (maxPrice - minPrice) * candleHeight) + 30;
+        
+        // Draw dashed line for average price
+        ctx.beginPath();
+        ctx.strokeStyle = '#4AE3B5';
+        ctx.lineWidth = 1;
+        ctx.setLineDash([5, 3]);
+        ctx.moveTo(20, y);
+        ctx.lineTo(canvas.width - 20, y);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        // Draw label
+        ctx.fillStyle = '#4AE3B5';
+        ctx.font = '12px Segoe UI';
+        ctx.fillText(`Avg: ${investmentPrice.toFixed(2)}`, canvas.width - 100, y - 5);
+      }
+    };
+
     const animate = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       
@@ -124,6 +180,12 @@ const MarketSimulator = () => {
           drawCandle(candle, x, Math.max(1, candleWidth * 0.8), minPrice, maxPrice);
         }
       });
+
+      // Draw average price line
+      drawAveragePrice(minPrice, maxPrice);
+      
+      // Draw trade markers
+      drawTradeMarkers(20, candleWidth, minPrice, maxPrice);
       
       ctx.fillStyle = '#4AE3B5';
       ctx.font = '10px Segoe UI';
@@ -147,7 +209,7 @@ const MarketSimulator = () => {
         cancelAnimationFrame(animationFrameRef.current);
       }
     };
-  }, [priceHistory]);
+  }, [priceHistory, tradeHistory, investment, investmentPrice]);
 
   const formatPnL = (value: number) => {
     const absValue = Math.abs(value);
