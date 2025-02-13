@@ -577,7 +577,7 @@ const MarketSimulator = () => {
           </div>
           <div className="flex items-center gap-3">
             <img 
-              src="/lovable-uploads/3c5fefc9-0971-410b-b7e4-6690bfedf3fd.png" 
+              src="/lovable-uploads/e7994385-956e-4b16-b136-1b8491d28b11.png" 
               alt="Ethereum Logo" 
               className="h-5 w-5" 
             />
