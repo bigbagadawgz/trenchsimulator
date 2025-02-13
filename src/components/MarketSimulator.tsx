@@ -576,7 +576,11 @@ const MarketSimulator = () => {
             <span className="text-white">${cryptoPrices.solana.toLocaleString()}</span>
           </div>
           <div className="flex items-center gap-3">
-            <Coins className="h-5 w-5 text-[#627EEA]" />
+            <img 
+              src="/lovable-uploads/3c5fefc9-0971-410b-b7e4-6690bfedf3fd.png" 
+              alt="Ethereum Logo" 
+              className="h-5 w-5" 
+            />
             <span className="text-[#627EEA] font-medium">ETH:</span>
             <span className="text-white">${cryptoPrices.ethereum.toLocaleString()}</span>
           </div>
