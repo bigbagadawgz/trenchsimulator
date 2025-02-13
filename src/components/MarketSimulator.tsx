@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -21,27 +20,31 @@ const MarketSimulator = () => {
     low: 100,
     timestamp: Date.now()
   }]);
+  const lastPriceUpdate = useRef<{ price: number; timestamp: number }>({ price: 100, timestamp: Date.now() });
+  const nextPriceTarget = useRef<{ price: number; timestamp: number }>({ price: 100, timestamp: Date.now() });
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationFrameRef = useRef<number | null>(null);
-  const lastRenderTime = useRef(Date.now());
   const { toast } = useToast();
 
   useEffect(() => {
     const generateNewCandle = () => {
       const lastCandle = priceHistory[priceHistory.length - 1];
       
-      const baseVolatility = 5; // Reduced volatility for smoother movement
-      const volatility = baseVolatility * (1 + Math.random() * 0.3); // Reduced random factor
+      const baseVolatility = 8;
+      const volatility = baseVolatility * (1 + Math.random() * 0.5);
       const trendStrength = Math.random();
-      const bias = (Math.random() - 0.5) * 2 * trendStrength; // Reduced bias range
+      const bias = (Math.random() - 0.5) * 4 * trendStrength;
       const spikeChance = Math.random();
-      const spikeMultiplier = spikeChance > 0.95 ? (Math.random() * 1.5 + 1) : 1; // Reduced spike intensity
+      const spikeMultiplier = spikeChance > 0.9 ? (Math.random() * 2 + 1) : 1;
       
       const open = lastCandle.close;
       const close = Math.max(1, open + (Math.random() - 0.5 + bias) * volatility * spikeMultiplier);
-      const wickVolatility = volatility * (Math.random() * 0.3 + 0.2); // Reduced wick size
+      const wickVolatility = volatility * (Math.random() * 0.5 + 0.5);
       const high = Math.max(open, close) + Math.random() * wickVolatility * spikeMultiplier;
       const low = Math.min(open, close) - Math.random() * wickVolatility * spikeMultiplier;
+      
+      lastPriceUpdate.current = { price: lastCandle.close, timestamp: Date.now() };
+      nextPriceTarget.current = { price: close, timestamp: Date.now() + 500 };
       
       return {
         open,
@@ -54,180 +57,49 @@ const MarketSimulator = () => {
     
     const interval = setInterval(() => {
       const newCandle = generateNewCandle();
-      setCurrentPrice(newCandle.close);
       setPriceHistory(prev => {
         const newHistory = [...prev, newCandle];
         return newHistory.length > 200 ? newHistory.slice(-200) : newHistory;
       });
-    }, 1000); // Increased interval for smoother updates
+    }, 500);
     
     return () => clearInterval(interval);
-  }, [currentPrice]);
+  }, []);
 
+  // Effect for smooth price updates
   useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    const drawCandle = (candle: any, x: number, width: number, minPrice: number, maxPrice: number) => {
-      const candleHeight = canvas.height - 60;
-      const priceToY = (price: number) => candleHeight - ((price - minPrice) / (maxPrice - minPrice) * candleHeight) + 30;
+    const updateCurrentPrice = () => {
+      const now = Date.now();
+      const { price: startPrice, timestamp: startTime } = lastPriceUpdate.current;
+      const { price: targetPrice, timestamp: targetTime } = nextPriceTarget.current;
       
-      // Anti-aliasing for smoother lines
-      ctx.lineCap = 'round';
-      ctx.lineJoin = 'round';
+      // Calculate progress (0 to 1) between price updates
+      const progress = Math.min(1, (now - startTime) / (targetTime - startTime));
       
-      // Draw wick with smoother line
-      ctx.beginPath();
-      ctx.strokeStyle = candle.close > candle.open ? '#4AE3B5' : '#FF6B6B';
-      ctx.lineWidth = 1.5; // Slightly thicker lines for smoother appearance
-      ctx.moveTo(x + width / 2, priceToY(candle.high));
-      ctx.lineTo(x + width / 2, priceToY(candle.low));
-      ctx.stroke();
+      // Use easeInOutCubic for smooth interpolation
+      const easeInOutCubic = (t: number) => {
+        return t < 0.5
+          ? 4 * t * t * t
+          : 1 - Math.pow(-2 * t + 2, 3) / 2;
+      };
       
-      // Draw candle body with slight transparency for smoother appearance
-      const bodyHeight = Math.max(2, Math.abs(priceToY(candle.open) - priceToY(candle.close)));
-      const alpha = 0.9; // Slight transparency
-      ctx.fillStyle = candle.close > candle.open 
-        ? `rgba(74, 227, 181, ${alpha})` 
-        : `rgba(255, 107, 107, ${alpha})`;
-      ctx.fillRect(
-        x,
-        priceToY(Math.max(candle.open, candle.close)),
-        width,
-        bodyHeight
-      );
-    };
-
-    const drawTradeMarkers = (candleX: number, width: number, minPrice: number, maxPrice: number) => {
-      const candleHeight = canvas.height - 60;
-      const priceToY = (price: number) => candleHeight - ((price - minPrice) / (maxPrice - minPrice) * candleHeight) + 30;
-
-      tradeHistory.forEach(trade => {
-        const tradeTimestamp = trade.timestamp.getTime();
-        const relevantCandle = priceHistory.find(candle => 
-          Math.abs(candle.timestamp - tradeTimestamp) < 1000
-        );
-        
-        if (relevantCandle) {
-          const index = priceHistory.indexOf(relevantCandle);
-          const x = index * width + 20;
-          const y = priceToY(trade.price);
-
-          // Draw circle background
-          ctx.beginPath();
-          ctx.arc(x + width / 2, y, 8, 0, Math.PI * 2);
-          ctx.fillStyle = trade.type === 'BUY' ? '#4AE3B5' : '#FF6B6B';
-          ctx.fill();
-
-          // Draw text
-          ctx.fillStyle = 'black';
-          ctx.font = 'bold 10px Segoe UI';
-          ctx.textAlign = 'center';
-          ctx.textBaseline = 'middle';
-          ctx.fillText(trade.type === 'BUY' ? 'B' : 'S', x + width / 2, y);
-        }
-      });
-    };
-
-    const drawAveragePrice = (minPrice: number, maxPrice: number) => {
-      const avgPrice = calculateAverageEntryPrice();
-      if (investment > 0 && avgPrice > 0) {
-        const candleHeight = canvas.height - 60;
-        const y = candleHeight - ((avgPrice - minPrice) / (maxPrice - minPrice) * candleHeight) + 30;
-        
-        // Draw dashed line for average price (now in yellow)
-        ctx.beginPath();
-        ctx.strokeStyle = '#FFD700';
-        ctx.lineWidth = 1;
-        ctx.setLineDash([5, 3]);
-        ctx.moveTo(20, y);
-        ctx.lineTo(canvas.width - 20, y);
-        ctx.stroke();
-        ctx.setLineDash([]);
-
-        // Draw label (also in yellow)
-        ctx.fillStyle = '#FFD700';
-        ctx.font = '12px Segoe UI';
-        ctx.fillText(`Avg: ${avgPrice.toFixed(2)}`, canvas.width - 100, y - 5);
-      }
-    };
-
-    const animate = () => {
-      const currentTime = Date.now();
-      const deltaTime = currentTime - lastRenderTime.current;
-      lastRenderTime.current = currentTime;
-
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      // Interpolate price
+      const easedProgress = easeInOutCubic(progress);
+      const interpolatedPrice = startPrice + (targetPrice - startPrice) * easedProgress;
       
-      // Draw background with slight gradient for depth
-      const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
-      gradient.addColorStop(0, '#111111');
-      gradient.addColorStop(1, '#0a0a0a');
-      ctx.fillStyle = gradient;
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      setCurrentPrice(interpolatedPrice);
       
-      const prices = priceHistory.flatMap(candle => [candle.high, candle.low]);
-      const minPrice = Math.min(...prices) * 0.995; // Slightly adjusted range
-      const maxPrice = Math.max(...prices) * 1.005;
-      
-      // Draw grid lines with reduced opacity for smoother look
-      ctx.strokeStyle = 'rgba(44, 62, 80, 0.3)';
-      ctx.lineWidth = 0.5;
-      for (let i = 0; i < 5; i++) {
-        const y = (canvas.height - 40) * (i / 4) + 20;
-        ctx.beginPath();
-        ctx.moveTo(0, y);
-        ctx.lineTo(canvas.width, y);
-        ctx.stroke();
-        
-        const price = minPrice + (maxPrice - minPrice) * (1 - i / 4);
-        ctx.fillStyle = 'rgba(74, 227, 181, 0.8)';
-        ctx.font = '12px Segoe UI';
-        ctx.fillText(price.toFixed(2), 5, y - 5);
-      }
-      
-      // Calculate smooth candle width
-      const candleWidth = Math.min((canvas.width - 40) / 200, (canvas.width - 40) / priceHistory.length);
-      
-      // Draw candles with smooth animation
-      priceHistory.forEach((candle, i) => {
-        const x = i * candleWidth + 20;
-        if (i < priceHistory.length) {
-          drawCandle(candle, x, Math.max(1, candleWidth * 0.8), minPrice, maxPrice);
-        }
-      });
-
-      // Draw average price line and trade markers
-      drawAveragePrice(minPrice, maxPrice);
-      drawTradeMarkers(20, candleWidth, minPrice, maxPrice);
-      
-      // Draw time labels with slight transparency
-      ctx.fillStyle = 'rgba(74, 227, 181, 0.8)';
-      ctx.font = '10px Segoe UI';
-      for(let i = 0; i < 5; i++) {
-        const index = Math.floor(i * (priceHistory.length / 4));
-        if(priceHistory[index]) {
-          const x = index * candleWidth + 20;
-          const timestamp = new Date(priceHistory[index].timestamp);
-          const timeStr = timestamp.toLocaleTimeString();
-          ctx.fillText(timeStr, x - 20, canvas.height - 5);
-        }
-      }
-      
-      animationFrameRef.current = requestAnimationFrame(animate);
+      animationFrameRef.current = requestAnimationFrame(updateCurrentPrice);
     };
     
-    animate();
+    updateCurrentPrice();
     
     return () => {
       if (animationFrameRef.current) {
         cancelAnimationFrame(animationFrameRef.current);
       }
     };
-  }, [priceHistory, tradeHistory, investment]);
+  }, []);
 
   const formatPnL = (value: number) => {
     const absValue = Math.abs(value);
@@ -314,6 +186,151 @@ const MarketSimulator = () => {
       });
     }
   };
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    const drawCandle = (candle: any, x: number, width: number, minPrice: number, maxPrice: number) => {
+      const candleHeight = canvas.height - 60;
+      const priceToY = (price: number) => candleHeight - ((price - minPrice) / (maxPrice - minPrice) * candleHeight) + 30;
+      
+      ctx.beginPath();
+      ctx.strokeStyle = candle.close > candle.open ? '#4AE3B5' : '#FF6B6B';
+      ctx.lineWidth = 1;
+      ctx.moveTo(x + width / 2, priceToY(candle.high));
+      ctx.lineTo(x + width / 2, priceToY(candle.low));
+      ctx.stroke();
+      
+      const bodyHeight = Math.max(2, Math.abs(priceToY(candle.open) - priceToY(candle.close)));
+      ctx.fillStyle = candle.close > candle.open ? '#4AE3B5' : '#FF6B6B';
+      ctx.fillRect(
+        x,
+        priceToY(Math.max(candle.open, candle.close)),
+        width,
+        bodyHeight
+      );
+    };
+
+    const drawTradeMarkers = (candleX: number, width: number, minPrice: number, maxPrice: number) => {
+      const candleHeight = canvas.height - 60;
+      const priceToY = (price: number) => candleHeight - ((price - minPrice) / (maxPrice - minPrice) * candleHeight) + 30;
+
+      tradeHistory.forEach(trade => {
+        const tradeTimestamp = trade.timestamp.getTime();
+        const relevantCandle = priceHistory.find(candle => 
+          Math.abs(candle.timestamp - tradeTimestamp) < 1000
+        );
+        
+        if (relevantCandle) {
+          const index = priceHistory.indexOf(relevantCandle);
+          const x = index * width + 20;
+          const y = priceToY(trade.price);
+
+          // Draw circle background
+          ctx.beginPath();
+          ctx.arc(x + width / 2, y, 8, 0, Math.PI * 2);
+          ctx.fillStyle = trade.type === 'BUY' ? '#4AE3B5' : '#FF6B6B';
+          ctx.fill();
+
+          // Draw text
+          ctx.fillStyle = 'black';
+          ctx.font = 'bold 10px Segoe UI';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(trade.type === 'BUY' ? 'B' : 'S', x + width / 2, y);
+        }
+      });
+    };
+
+    const drawAveragePrice = (minPrice: number, maxPrice: number) => {
+      const avgPrice = calculateAverageEntryPrice();
+      if (investment > 0 && avgPrice > 0) {
+        const candleHeight = canvas.height - 60;
+        const y = candleHeight - ((avgPrice - minPrice) / (maxPrice - minPrice) * candleHeight) + 30;
+        
+        // Draw dashed line for average price (now in yellow)
+        ctx.beginPath();
+        ctx.strokeStyle = '#FFD700';
+        ctx.lineWidth = 1;
+        ctx.setLineDash([5, 3]);
+        ctx.moveTo(20, y);
+        ctx.lineTo(canvas.width - 20, y);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        // Draw label (also in yellow)
+        ctx.fillStyle = '#FFD700';
+        ctx.font = '12px Segoe UI';
+        ctx.fillText(`Avg: ${avgPrice.toFixed(2)}`, canvas.width - 100, y - 5);
+      }
+    };
+
+    const animate = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      
+      ctx.fillStyle = '#111';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      
+      const prices = priceHistory.flatMap(candle => [candle.high, candle.low]);
+      const minPrice = Math.min(...prices) * 0.95;
+      const maxPrice = Math.max(...prices) * 1.05;
+      
+      ctx.strokeStyle = '#2C3E50';
+      ctx.lineWidth = 0.5;
+      for (let i = 0; i < 5; i++) {
+        const y = (canvas.height - 40) * (i / 4) + 20;
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(canvas.width, y);
+        ctx.stroke();
+        
+        const price = minPrice + (maxPrice - minPrice) * (1 - i / 4);
+        ctx.fillStyle = '#4AE3B5';
+        ctx.font = '12px Segoe UI';
+        ctx.fillText(price.toFixed(2), 5, y - 5);
+      }
+      
+      const candleWidth = Math.min((canvas.width - 40) / 200, (canvas.width - 40) / priceHistory.length);
+      priceHistory.forEach((candle, i) => {
+        const x = i * candleWidth + 20;
+        if (i < priceHistory.length) {
+          drawCandle(candle, x, Math.max(1, candleWidth * 0.8), minPrice, maxPrice);
+        }
+      });
+
+      // Draw average price line using the calculated average
+      drawAveragePrice(minPrice, maxPrice);
+      
+      // Draw trade markers
+      drawTradeMarkers(20, candleWidth, minPrice, maxPrice);
+      
+      ctx.fillStyle = '#4AE3B5';
+      ctx.font = '10px Segoe UI';
+      for(let i = 0; i < 5; i++) {
+        const index = Math.floor(i * (priceHistory.length / 4));
+        if(priceHistory[index]) {
+          const x = index * candleWidth + 20;
+          const timestamp = new Date(priceHistory[index].timestamp);
+          const timeStr = timestamp.toLocaleTimeString();
+          ctx.fillText(timeStr, x - 20, canvas.height - 5);
+        }
+      }
+      
+      animationFrameRef.current = requestAnimationFrame(animate);
+    };
+    
+    animate();
+    
+    return () => {
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
+    };
+  }, [priceHistory, tradeHistory, investment]);
 
   return (
     <div className="min-h-screen relative bg-black overflow-hidden">
