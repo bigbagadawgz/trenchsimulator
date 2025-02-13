@@ -4,7 +4,6 @@ import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import Leaderboard from './Leaderboard';
 
 const MarketSimulator = () => {
   const [balance, setBalance] = useState(200);
@@ -445,8 +444,6 @@ const MarketSimulator = () => {
                 </div>
               </div>
             </Card>
-
-            <Leaderboard />
           </div>
         </div>
       </div>
