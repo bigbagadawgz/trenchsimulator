@@ -365,9 +365,9 @@ const MarketSimulator = () => {
             className="rounded-full bg-black/40 backdrop-blur-xl border border-[#4AE3B5]/20 hover:bg-black/60"
           >
             <img
-              src="/lovable-uploads/ee96107d-d67d-4f92-85a3-3745e738bac6.png"
+              src="/lovable-uploads/6673fad7-7c70-42c0-b938-02c9ac6239b5.png"
               alt="DEX Screener"
-              className="h-5 w-5 text-[#4AE3B5] invert"
+              className="h-5 w-5 text-[#4AE3B5]"
             />
           </Button>
         </a>
