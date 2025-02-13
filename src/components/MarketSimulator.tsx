@@ -394,7 +394,7 @@ const MarketSimulator = () => {
 
       <div className="relative z-10 container mx-auto p-6">
         <div className="flex flex-col gap-8 lg:flex-row">
-          <div className="w-full lg:w-[300px] space-y-4">
+          <div className="w-full lg:w-[300px] flex flex-col gap-4">
             <Card className="bg-black/40 backdrop-blur-xl border border-[#4AE3B5]/20 shadow-[0_0_15px_rgba(74,227,181,0.1)] p-4">
               <div className="flex items-center gap-2">
                 <span className="text-[#4AE3B5] font-semibold">CA - </span>
