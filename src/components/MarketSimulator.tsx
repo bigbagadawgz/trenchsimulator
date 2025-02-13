@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
-import { Twitter } from 'lucide-react';
+import { Twitter, Bitcoin, Coins, FileCode } from 'lucide-react';
 
 const MarketSimulator = () => {
   const [balance, setBalance] = useState(200);
@@ -562,19 +562,19 @@ const MarketSimulator = () => {
       </div>
 
       <div className="fixed bottom-4 left-4 z-50">
-        <Card className="bg-black/40 backdrop-blur-xl border border-[#4AE3B5]/20 p-4 space-y-2">
-          <div className="flex items-center gap-2">
-            <div className="w-2 h-2 rounded-full bg-[#4AE3B5]" />
+        <Card className="bg-black/40 backdrop-blur-xl border border-[#4AE3B5]/20 p-4 space-y-3">
+          <div className="flex items-center gap-3">
+            <FileCode className="h-5 w-5 text-[#4AE3B5]" />
             <span className="text-[#4AE3B5] font-medium">SOL:</span>
             <span className="text-white">${cryptoPrices.solana.toLocaleString()}</span>
           </div>
-          <div className="flex items-center gap-2">
-            <div className="w-2 h-2 rounded-full bg-[#627EEA]" />
+          <div className="flex items-center gap-3">
+            <Coins className="h-5 w-5 text-[#627EEA]" />
             <span className="text-[#627EEA] font-medium">ETH:</span>
             <span className="text-white">${cryptoPrices.ethereum.toLocaleString()}</span>
           </div>
-          <div className="flex items-center gap-2">
-            <div className="w-2 h-2 rounded-full bg-[#F7931A]" />
+          <div className="flex items-center gap-3">
+            <Bitcoin className="h-5 w-5 text-[#F7931A]" />
             <span className="text-[#F7931A] font-medium">BTC:</span>
             <span className="text-white">${cryptoPrices.bitcoin.toLocaleString()}</span>
           </div>
