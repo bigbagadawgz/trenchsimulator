@@ -106,22 +106,18 @@ const MarketSimulator = () => {
           const x = index * width + 20;
           const y = priceToY(trade.price);
 
-          // Draw trade marker
+          // Draw circle background
           ctx.beginPath();
-          if (trade.type === 'BUY') {
-            ctx.fillStyle = '#4AE3B5';
-            // Draw triangle pointing up
-            ctx.moveTo(x + width / 2, y + 10);
-            ctx.lineTo(x + width / 2 - 5, y + 15);
-            ctx.lineTo(x + width / 2 + 5, y + 15);
-          } else {
-            ctx.fillStyle = '#FF6B6B';
-            // Draw triangle pointing down
-            ctx.moveTo(x + width / 2, y - 10);
-            ctx.lineTo(x + width / 2 - 5, y - 15);
-            ctx.lineTo(x + width / 2 + 5, y - 15);
-          }
+          ctx.arc(x + width / 2, y, 8, 0, Math.PI * 2);
+          ctx.fillStyle = trade.type === 'BUY' ? '#4AE3B5' : '#FF6B6B';
           ctx.fill();
+
+          // Draw text
+          ctx.fillStyle = 'black';
+          ctx.font = 'bold 10px Segoe UI';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(trade.type === 'BUY' ? 'B' : 'S', x + width / 2, y);
         }
       });
     };
@@ -131,9 +127,9 @@ const MarketSimulator = () => {
         const candleHeight = canvas.height - 60;
         const y = candleHeight - ((investmentPrice - minPrice) / (maxPrice - minPrice) * candleHeight) + 30;
         
-        // Draw dashed line for average price
+        // Draw dashed line for average price (now in yellow)
         ctx.beginPath();
-        ctx.strokeStyle = '#4AE3B5';
+        ctx.strokeStyle = '#FFD700';
         ctx.lineWidth = 1;
         ctx.setLineDash([5, 3]);
         ctx.moveTo(20, y);
@@ -141,8 +137,8 @@ const MarketSimulator = () => {
         ctx.stroke();
         ctx.setLineDash([]);
 
-        // Draw label
-        ctx.fillStyle = '#4AE3B5';
+        // Draw label (also in yellow)
+        ctx.fillStyle = '#FFD700';
         ctx.font = '12px Segoe UI';
         ctx.fillText(`Avg: ${investmentPrice.toFixed(2)}`, canvas.width - 100, y - 5);
       }
