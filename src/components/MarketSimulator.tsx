@@ -201,10 +201,8 @@ const MarketSimulator = () => {
       if (userData?.user) {
         await supabase
           .from('users')
-          .upsert({
-            id: userData.user.id,
-            current_profit: pnl
-          });
+          .update({ current_profit: pnl })
+          .eq('id', userData.user.id);
       }
       
       setTradeHistory(prev => [...prev, {
