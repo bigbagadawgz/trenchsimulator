@@ -25,7 +25,11 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Login />} />
+          <Route path="/" element={
+            localStorage.getItem('trench_username') ? 
+            <Navigate to="/simulator" replace /> : 
+            <Login />
+          } />
           <Route
             path="/simulator"
             element={
