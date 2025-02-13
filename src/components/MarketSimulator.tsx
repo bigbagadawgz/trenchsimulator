@@ -209,14 +209,29 @@ const MarketSimulator = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background to-muted p-6">
-      <div className="container mx-auto">
+    <div className="min-h-screen relative bg-black overflow-hidden">
+      {/* Animated Background */}
+      <div className="absolute inset-0 z-0">
+        <div className="absolute inset-0 bg-[linear-gradient(40deg,transparent_25%,rgba(74,227,181,0.2)_50%,transparent_75%)] animate-[pulse_15s_ease-in-out_infinite]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(74,227,181,0.1),transparent_50%)] animate-[pulse_10s_ease-in-out_infinite]" />
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,transparent,rgba(74,227,181,0.05)_50%,transparent)] animate-[slide_20s_linear_infinite]" />
+        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#4AE3B5] to-transparent opacity-50" />
+        <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#4AE3B5] to-transparent opacity-50" />
+      </div>
+
+      {/* Main Content */}
+      <div className="relative z-10 container mx-auto p-6">
         <div className="flex flex-col gap-8 lg:flex-row">
           {/* Trade History Panel */}
-          <Card className="w-full lg:w-[300px] h-fit bg-card/50 backdrop-blur p-4">
+          <Card className="w-full lg:w-[300px] h-fit bg-black/40 backdrop-blur-xl border border-[#4AE3B5]/20 shadow-[0_0_15px_rgba(74,227,181,0.1)] p-4">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-bold text-primary">Trade History</h2>
-              <Button variant="ghost" size="sm" onClick={() => setShowHistory(!showHistory)}>
+              <h2 className="text-xl font-bold text-[#4AE3B5]">Trade History</h2>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={() => setShowHistory(!showHistory)}
+                className="text-[#4AE3B5] hover:text-[#4AE3B5]/80"
+              >
                 {showHistory ? '−' : '+'}
               </Button>
             </div>
@@ -224,28 +239,28 @@ const MarketSimulator = () => {
             {showHistory && (
               <div className="space-y-3">
                 {tradeHistory.slice().reverse().map((trade, index) => (
-                  <Card key={index} className="p-3 bg-background/50">
+                  <Card key={index} className="p-3 bg-black/40 border border-[#4AE3B5]/10">
                     <div className="flex justify-between mb-1">
-                      <span className={trade.type === 'BUY' ? 'text-green-500' : 'text-red-500'}>
+                      <span className={trade.type === 'BUY' ? 'text-[#4AE3B5]' : 'text-red-500'}>
                         {trade.type}
                       </span>
-                      <span className="text-muted-foreground">
+                      <span className="text-gray-400">
                         {trade.timestamp.toLocaleTimeString()}
                       </span>
                     </div>
                     <div className="text-sm space-y-1">
                       <div className="flex justify-between">
-                        <span className="text-muted-foreground">Amount:</span>
-                        <span>{trade.amount.toFixed(2)} SOL</span>
+                        <span className="text-gray-400">Amount:</span>
+                        <span className="text-white">{trade.amount.toFixed(2)} SOL</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-muted-foreground">Price:</span>
-                        <span>{trade.price.toFixed(2)}</span>
+                        <span className="text-gray-400">Price:</span>
+                        <span className="text-white">{trade.price.toFixed(2)}</span>
                       </div>
                       {trade.pnl !== null && (
                         <div className="flex justify-between">
-                          <span className="text-muted-foreground">PnL:</span>
-                          <span className={trade.pnl >= 0 ? 'text-green-500' : 'text-red-500'}>
+                          <span className="text-gray-400">PnL:</span>
+                          <span className={trade.pnl >= 0 ? 'text-[#4AE3B5]' : 'text-red-500'}>
                             {formatPnL(trade.pnl)} SOL
                           </span>
                         </div>
@@ -259,59 +274,59 @@ const MarketSimulator = () => {
 
           {/* Main Content */}
           <div className="flex-1 space-y-6">
-            <h1 className="text-4xl font-bold text-center text-primary mb-8">
+            <h1 className="text-5xl font-bold text-center text-[#4AE3B5] mb-8 tracking-tight">
               TRENCH SIMULATOR
             </h1>
 
             {/* Chart Container */}
-            <Card className="p-6 bg-card/50 backdrop-blur">
+            <Card className="p-6 bg-black/40 backdrop-blur-xl border border-[#4AE3B5]/20 shadow-[0_0_15px_rgba(74,227,181,0.1)]">
               <canvas 
                 ref={canvasRef}
                 width={800}
                 height={400}
-                className="w-full bg-background rounded-lg"
+                className="w-full bg-black rounded-lg"
               />
             </Card>
 
             {/* Stats */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <Card className="p-4 text-center bg-card/50 backdrop-blur">
-                <div className="text-sm text-muted-foreground mb-1">BALANCE</div>
-                <div className="text-lg font-bold">{balance.toFixed(2)} SOL</div>
+              <Card className="p-4 text-center bg-black/40 backdrop-blur-xl border border-[#4AE3B5]/20">
+                <div className="text-sm text-gray-400 mb-1">BALANCE</div>
+                <div className="text-lg font-bold text-white">{balance.toFixed(2)} SOL</div>
               </Card>
-              <Card className="p-4 text-center bg-card/50 backdrop-blur">
-                <div className="text-sm text-muted-foreground mb-1">INVESTMENT</div>
-                <div className="text-lg font-bold">{investment.toFixed(2)} SOL</div>
+              <Card className="p-4 text-center bg-black/40 backdrop-blur-xl border border-[#4AE3B5]/20">
+                <div className="text-sm text-gray-400 mb-1">INVESTMENT</div>
+                <div className="text-lg font-bold text-white">{investment.toFixed(2)} SOL</div>
               </Card>
-              <Card className="p-4 text-center bg-card/50 backdrop-blur">
-                <div className="text-sm text-muted-foreground mb-1">MARKET CAP</div>
-                <div className="text-lg font-bold">{(currentPrice * 1000).toFixed(2)}K</div>
+              <Card className="p-4 text-center bg-black/40 backdrop-blur-xl border border-[#4AE3B5]/20">
+                <div className="text-sm text-gray-400 mb-1">MARKET CAP</div>
+                <div className="text-lg font-bold text-white">{(currentPrice * 1000).toFixed(2)}K</div>
               </Card>
-              <Card className="p-4 text-center bg-card/50 backdrop-blur">
-                <div className="text-sm text-muted-foreground mb-1">PROFIT/LOSS</div>
-                <div className={`text-lg font-bold ${calculateProfitLoss() >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+              <Card className="p-4 text-center bg-black/40 backdrop-blur-xl border border-[#4AE3B5]/20">
+                <div className="text-sm text-gray-400 mb-1">PROFIT/LOSS</div>
+                <div className={`text-lg font-bold ${calculateProfitLoss() >= 0 ? 'text-[#4AE3B5]' : 'text-red-500'}`}>
                   {formatPnL(calculateProfitLoss())} SOL
                 </div>
               </Card>
             </div>
 
             {/* Controls */}
-            <Card className="p-6 bg-card/50 backdrop-blur">
+            <Card className="p-6 bg-black/40 backdrop-blur-xl border border-[#4AE3B5]/20 shadow-[0_0_15px_rgba(74,227,181,0.1)]">
               <div className="flex flex-wrap gap-4 justify-center items-center">
                 <div className="flex items-center gap-2">
                   <Input
                     type="number"
                     value={buyAmount}
                     onChange={(e) => setBuyAmount(e.target.value)}
-                    className="w-32 text-right"
+                    className="w-32 text-right bg-black/60 border-[#4AE3B5]/20 text-white"
                   />
-                  <span className="text-primary">SOL</span>
+                  <span className="text-[#4AE3B5]">SOL</span>
                 </div>
                 
                 <Button
                   onClick={handleBuy}
                   disabled={balance <= 0}
-                  className="bg-green-500 hover:bg-green-600 text-white"
+                  className="bg-[#4AE3B5] hover:bg-[#4AE3B5]/80 text-black font-bold"
                 >
                   BUY
                 </Button>
@@ -323,7 +338,9 @@ const MarketSimulator = () => {
                       onClick={() => handleSell(percentage)}
                       disabled={investment <= 0}
                       variant={percentage === 100 ? "destructive" : "outline"}
-                      className={percentage === 100 ? "" : "text-destructive"}
+                      className={percentage === 100 
+                        ? "bg-red-500 hover:bg-red-600 text-white border-none" 
+                        : "border-red-500 text-red-500 hover:bg-red-500/10"}
                     >
                       {percentage}%
                     </Button>
