@@ -3,6 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+import Leaderboard from './Leaderboard';
 
 const MarketSimulator = () => {
   const [balance, setBalance] = useState(200);
@@ -179,7 +181,7 @@ const MarketSimulator = () => {
     }
   };
 
-  const handleSell = (percentage = 100) => {
+  const handleSell = async (percentage = 100) => {
     if (investment > 0) {
       const sellAmount = (investment * percentage) / 100;
       const pnl = calculateProfitLoss() * (percentage / 100);
@@ -194,6 +196,16 @@ const MarketSimulator = () => {
       setBalance(prev => prev + returnAmount);
       setInvestment(prev => percentage === 100 ? 0 : prev - sellAmount);
       setInvestmentPrice(percentage === 100 ? 0 : investmentPrice);
+      
+      const { data: userData } = await supabase.auth.getUser();
+      if (userData?.user) {
+        await supabase
+          .from('users')
+          .upsert({
+            id: userData.user.id,
+            current_profit: pnl
+          });
+      }
       
       setTradeHistory(prev => [...prev, {
         type: 'SELL',
@@ -400,6 +412,8 @@ const MarketSimulator = () => {
                 </div>
               </div>
             </Card>
+
+            <Leaderboard />
           </div>
         </div>
       </div>
