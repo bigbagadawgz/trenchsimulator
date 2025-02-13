@@ -268,12 +268,61 @@ const MarketSimulator = () => {
 
           <div className="flex-1 space-y-6">
             <div className="relative text-center mb-12 flex items-center justify-center gap-6">
-              <div className="w-24 h-24 opacity-50">
-                <svg viewBox="0 0 100 100" className="w-full h-full fill-[#4AE3B5]/20">
-                  <path d="M50 0 C40 20 20 40 20 60 C20 80 35 100 50 100 C65 100 80 80 80 60 C80 40 60 20 50 0Z" />
-                  <circle cx="50" cy="45" r="12" />
-                  <rect x="42" y="55" width="16" height="25" rx="8" />
-                  <path d="M35 70 C25 75 25 85 35 90 M65 70 C75 75 75 85 65 90" strokeWidth="4" stroke="#4AE3B5" fill="none"/>
+              <div className="w-32 h-32 opacity-80">
+                <svg viewBox="0 0 100 100" className="w-full h-full">
+                  <path 
+                    d="M30 40 C30 20 70 20 70 40 L75 45 C75 30 25 30 25 45 Z" 
+                    className="fill-[#4AE3B5]/30 stroke-[#4AE3B5] stroke-2"
+                  />
+                  
+                  <path 
+                    d="M35 42 L35 48 M65 42 L65 48" 
+                    className="stroke-[#4AE3B5] stroke-2"
+                  />
+                  
+                  <circle 
+                    cx="50" 
+                    cy="48" 
+                    r="8" 
+                    className="fill-[#4AE3B5]/20"
+                  />
+                  
+                  <path 
+                    d="M45 48 C45 52 55 52 55 48" 
+                    className="fill-none stroke-[#4AE3B5] stroke-2"
+                  />
+                  <path 
+                    d="M42 50 C42 55 58 55 58 50" 
+                    className="fill-[#4AE3B5]/20 stroke-[#4AE3B5] stroke-2"
+                  />
+                  
+                  <path 
+                    d="M35 56 L35 85 L45 85 L50 75 L55 85 L65 85 L65 56" 
+                    className="fill-[#4AE3B5]/20 stroke-[#4AE3B5] stroke-2"
+                  />
+                  
+                  <rect 
+                    x="45" 
+                    y="60" 
+                    width="10" 
+                    height="10" 
+                    className="fill-[#4AE3B5]/30 stroke-[#4AE3B5] stroke-2"
+                  />
+                  
+                  <rect 
+                    x="35" 
+                    y="65" 
+                    width="8" 
+                    height="6" 
+                    className="fill-[#4AE3B5]/30 stroke-[#4AE3B5] stroke-2"
+                  />
+                  <rect 
+                    x="57" 
+                    y="65" 
+                    width="8" 
+                    height="6" 
+                    className="fill-[#4AE3B5]/30 stroke-[#4AE3B5] stroke-2"
+                  />
                 </svg>
               </div>
               <h1 className="text-5xl font-bold text-[#4AE3B5] tracking-tight relative">
