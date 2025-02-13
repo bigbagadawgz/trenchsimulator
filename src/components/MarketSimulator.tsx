@@ -226,7 +226,24 @@ const MarketSimulator = () => {
   };
 
   const calculateAverageEntryPrice = () => {
-    const buyTrades = tradeHistory.filter(trade => trade.type === 'BUY');
+    const allTrades = [...tradeHistory];
+    let lastFullSellIndex = -1;
+
+    // Find the last trade where all positions were sold
+    for (let i = allTrades.length - 1; i >= 0; i--) {
+      if (allTrades[i].type === 'SELL' && allTrades[i].fullExit) {
+        lastFullSellIndex = i;
+        break;
+      }
+    }
+
+    // Get only the trades after the last full sell
+    const relevantTrades = lastFullSellIndex === -1 
+      ? allTrades 
+      : allTrades.slice(lastFullSellIndex + 1);
+
+    // Calculate average only from buy trades
+    const buyTrades = relevantTrades.filter(trade => trade.type === 'BUY');
     if (buyTrades.length === 0) return 0;
 
     const totalInvested = buyTrades.reduce((sum, trade) => sum + (trade.amount * trade.price), 0);
@@ -245,7 +262,8 @@ const MarketSimulator = () => {
         amount: amount,
         price: currentPrice,
         timestamp: new Date(),
-        pnl: null
+        pnl: null,
+        fullExit: false
       };
 
       setTradeHistory(prev => {
@@ -271,20 +289,20 @@ const MarketSimulator = () => {
       setBalance(prev => prev + returnAmount);
       setInvestment(prev => percentage === 100 ? 0 : prev - sellAmount);
       
-      // Only reset investment price if selling everything
-      if (percentage === 100) {
-        setInvestmentPrice(0);
-      }
-
       const newTrade = {
         type: 'SELL',
         amount: sellAmount,
         price: currentPrice,
         timestamp: new Date(),
-        pnl: pnl
+        pnl: pnl,
+        fullExit: percentage === 100
       };
 
       setTradeHistory(prev => [...prev, newTrade]);
+
+      if (percentage === 100) {
+        setInvestmentPrice(0);
+      }
 
       toast({
         title: "Trade Completed",
