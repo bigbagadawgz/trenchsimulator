@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
-import { Twitter, Bitcoin, Coins, FileCode } from 'lucide-react';
+import { Twitter, Bitcoin, Coins } from 'lucide-react';
 
 const MarketSimulator = () => {
   const [balance, setBalance] = useState(200);
@@ -49,8 +49,8 @@ const MarketSimulator = () => {
     // Fetch immediately
     fetchCryptoPrices();
 
-    // Then fetch every minute
-    const interval = setInterval(fetchCryptoPrices, 60000);
+    // Then fetch every 5 seconds instead of every minute
+    const interval = setInterval(fetchCryptoPrices, 5000);
 
     return () => clearInterval(interval);
   }, []);
@@ -564,7 +564,11 @@ const MarketSimulator = () => {
       <div className="fixed bottom-4 left-4 z-50">
         <Card className="bg-black/40 backdrop-blur-xl border border-[#4AE3B5]/20 p-4 space-y-3">
           <div className="flex items-center gap-3">
-            <FileCode className="h-5 w-5 text-[#4AE3B5]" />
+            <img 
+              src="/lovable-uploads/3a17d711-007f-4032-baee-8c9fdd982b9e.png" 
+              alt="Solana Logo" 
+              className="h-5 w-5" 
+            />
             <span className="text-[#4AE3B5] font-medium">SOL:</span>
             <span className="text-white">${cryptoPrices.solana.toLocaleString()}</span>
           </div>
