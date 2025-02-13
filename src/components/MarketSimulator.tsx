@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -205,9 +206,18 @@ const MarketSimulator = () => {
       
       const { data: userData } = await supabase.auth.getUser();
       if (userData?.user) {
+        // First get the current profit
+        const { data: currentUserData } = await supabase
+          .from('users')
+          .select('current_profit')
+          .eq('id', userData.user.id)
+          .single();
+        
+        // Update by adding the new PnL to the existing profit
+        const currentProfit = currentUserData?.current_profit || 0;
         await supabase
           .from('users')
-          .update({ current_profit: pnl })
+          .update({ current_profit: currentProfit + pnl })
           .eq('id', userData.user.id);
       }
       
