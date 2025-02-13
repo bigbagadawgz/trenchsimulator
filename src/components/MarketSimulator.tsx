@@ -1,9 +1,11 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { Twitter } from 'lucide-react';
 
 const MarketSimulator = () => {
   const [balance, setBalance] = useState(200);
@@ -253,6 +255,22 @@ const MarketSimulator = () => {
         <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#4AE3B5] to-transparent opacity-50" />
         <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#4AE3B5] to-transparent opacity-50" />
       </div>
+
+      {/* Twitter Link */}
+      <a 
+        href="https://x.com/trenchsimulator" 
+        target="_blank" 
+        rel="noopener noreferrer" 
+        className="fixed top-4 right-4 z-50"
+      >
+        <Button 
+          variant="ghost" 
+          size="icon" 
+          className="rounded-full bg-black/40 backdrop-blur-xl border border-[#4AE3B5]/20 hover:bg-black/60"
+        >
+          <Twitter className="h-5 w-5 text-[#4AE3B5]" />
+        </Button>
+      </a>
 
       <div className="relative z-10 container mx-auto p-6">
         <div className="flex flex-col gap-8 lg:flex-row">
