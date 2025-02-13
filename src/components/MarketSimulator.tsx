@@ -20,8 +20,6 @@ const MarketSimulator = () => {
     low: 100,
     timestamp: Date.now()
   }]);
-  const lastPriceUpdate = useRef<{ price: number; timestamp: number }>({ price: 100, timestamp: Date.now() });
-  const nextPriceTarget = useRef<{ price: number; timestamp: number }>({ price: 100, timestamp: Date.now() });
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationFrameRef = useRef<number | null>(null);
   const { toast } = useToast();
@@ -43,9 +41,6 @@ const MarketSimulator = () => {
       const high = Math.max(open, close) + Math.random() * wickVolatility * spikeMultiplier;
       const low = Math.min(open, close) - Math.random() * wickVolatility * spikeMultiplier;
       
-      lastPriceUpdate.current = { price: lastCandle.close, timestamp: Date.now() };
-      nextPriceTarget.current = { price: close, timestamp: Date.now() + 500 };
-      
       return {
         open,
         close,
@@ -57,6 +52,7 @@ const MarketSimulator = () => {
     
     const interval = setInterval(() => {
       const newCandle = generateNewCandle();
+      setCurrentPrice(newCandle.close);
       setPriceHistory(prev => {
         const newHistory = [...prev, newCandle];
         return newHistory.length > 200 ? newHistory.slice(-200) : newHistory;
@@ -64,128 +60,7 @@ const MarketSimulator = () => {
     }, 500);
     
     return () => clearInterval(interval);
-  }, []);
-
-  // Effect for smooth price updates
-  useEffect(() => {
-    const updateCurrentPrice = () => {
-      const now = Date.now();
-      const { price: startPrice, timestamp: startTime } = lastPriceUpdate.current;
-      const { price: targetPrice, timestamp: targetTime } = nextPriceTarget.current;
-      
-      // Calculate progress (0 to 1) between price updates
-      const progress = Math.min(1, (now - startTime) / (targetTime - startTime));
-      
-      // Use easeInOutCubic for smooth interpolation
-      const easeInOutCubic = (t: number) => {
-        return t < 0.5
-          ? 4 * t * t * t
-          : 1 - Math.pow(-2 * t + 2, 3) / 2;
-      };
-      
-      // Interpolate price
-      const easedProgress = easeInOutCubic(progress);
-      const interpolatedPrice = startPrice + (targetPrice - startPrice) * easedProgress;
-      
-      setCurrentPrice(interpolatedPrice);
-      
-      animationFrameRef.current = requestAnimationFrame(updateCurrentPrice);
-    };
-    
-    updateCurrentPrice();
-    
-    return () => {
-      if (animationFrameRef.current) {
-        cancelAnimationFrame(animationFrameRef.current);
-      }
-    };
-  }, []);
-
-  const formatPnL = (value: number) => {
-    const absValue = Math.abs(value);
-    return `${value < 0 ? '-' : ''}${absValue.toFixed(2)}`;
-  };
-
-  const calculateProfitLoss = () => {
-    const avgEntryPrice = calculateAverageEntryPrice();
-    if (investment <= 0 || avgEntryPrice <= 0) return 0;
-    const pnl = (investment * (currentPrice - avgEntryPrice) / avgEntryPrice);
-    return pnl;
-  };
-
-  const calculateTotalPnL = () => {
-    return tradeHistory
-      .filter(trade => trade.pnl !== null)
-      .reduce((total, trade) => total + trade.pnl, 0);
-  };
-
-  const calculateAverageEntryPrice = () => {
-    const buyTrades = tradeHistory.filter(trade => trade.type === 'BUY');
-    if (buyTrades.length === 0) return 0;
-
-    const totalInvested = buyTrades.reduce((sum, trade) => sum + (trade.amount * trade.price), 0);
-    const totalAmount = buyTrades.reduce((sum, trade) => sum + trade.amount, 0);
-    return totalInvested / totalAmount;
-  };
-
-  const handleBuy = () => {
-    const amount = Math.min(balance, Number(buyAmount));
-    if (amount > 0 && !isNaN(amount)) {
-      setBalance(prev => prev - amount);
-      setInvestment(prev => prev + amount);
-
-      const newTrade = {
-        type: 'BUY',
-        amount: amount,
-        price: currentPrice,
-        timestamp: new Date(),
-        pnl: null
-      };
-
-      setTradeHistory(prev => {
-        const newHistory = [...prev, newTrade];
-        const avgPrice = calculateAverageEntryPrice();
-        setInvestmentPrice(avgPrice);
-        return newHistory;
-      });
-      
-      toast({
-        title: "Purchase Successful",
-        description: `Bought ${amount.toFixed(2)} SOL at ${currentPrice.toFixed(2)}`,
-      });
-    }
-  };
-
-  const handleSell = (percentage = 100) => {
-    if (investment > 0) {
-      const sellAmount = (investment * percentage) / 100;
-      const pnl = calculateProfitLoss() * (percentage / 100);
-      const returnAmount = sellAmount + pnl;
-      
-      setBalance(prev => prev + returnAmount);
-      setInvestment(prev => percentage === 100 ? 0 : prev - sellAmount);
-      
-      // Only reset investment price if selling everything
-      if (percentage === 100) {
-        setInvestmentPrice(0);
-      }
-
-      const newTrade = {
-        type: 'SELL',
-        amount: sellAmount,
-        price: currentPrice,
-        timestamp: new Date(),
-        pnl: pnl
-      };
-
-      setTradeHistory(prev => [...prev, newTrade]);
-
-      toast({
-        title: "Trade Completed",
-        description: `Sold ${sellAmount.toFixed(2)} SOL with PnL: ${pnl.toFixed(2)} SOL`,
-      });
-    }
-  };
+  }, [currentPrice]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -331,6 +206,92 @@ const MarketSimulator = () => {
       }
     };
   }, [priceHistory, tradeHistory, investment]);
+
+  const formatPnL = (value: number) => {
+    const absValue = Math.abs(value);
+    return `${value < 0 ? '-' : ''}${absValue.toFixed(2)}`;
+  };
+
+  const calculateProfitLoss = () => {
+    const avgEntryPrice = calculateAverageEntryPrice();
+    if (investment <= 0 || avgEntryPrice <= 0) return 0;
+    const pnl = (investment * (currentPrice - avgEntryPrice) / avgEntryPrice);
+    return pnl;
+  };
+
+  const calculateTotalPnL = () => {
+    return tradeHistory
+      .filter(trade => trade.pnl !== null)
+      .reduce((total, trade) => total + trade.pnl, 0);
+  };
+
+  const calculateAverageEntryPrice = () => {
+    const buyTrades = tradeHistory.filter(trade => trade.type === 'BUY');
+    if (buyTrades.length === 0) return 0;
+
+    const totalInvested = buyTrades.reduce((sum, trade) => sum + (trade.amount * trade.price), 0);
+    const totalAmount = buyTrades.reduce((sum, trade) => sum + trade.amount, 0);
+    return totalInvested / totalAmount;
+  };
+
+  const handleBuy = () => {
+    const amount = Math.min(balance, Number(buyAmount));
+    if (amount > 0 && !isNaN(amount)) {
+      setBalance(prev => prev - amount);
+      setInvestment(prev => prev + amount);
+
+      const newTrade = {
+        type: 'BUY',
+        amount: amount,
+        price: currentPrice,
+        timestamp: new Date(),
+        pnl: null
+      };
+
+      setTradeHistory(prev => {
+        const newHistory = [...prev, newTrade];
+        const avgPrice = calculateAverageEntryPrice();
+        setInvestmentPrice(avgPrice);
+        return newHistory;
+      });
+      
+      toast({
+        title: "Purchase Successful",
+        description: `Bought ${amount.toFixed(2)} SOL at ${currentPrice.toFixed(2)}`,
+      });
+    }
+  };
+
+  const handleSell = (percentage = 100) => {
+    if (investment > 0) {
+      const sellAmount = (investment * percentage) / 100;
+      const pnl = calculateProfitLoss() * (percentage / 100);
+      const returnAmount = sellAmount + pnl;
+      
+      setBalance(prev => prev + returnAmount);
+      setInvestment(prev => percentage === 100 ? 0 : prev - sellAmount);
+      
+      // Only reset investment price if selling everything
+      if (percentage === 100) {
+        setInvestmentPrice(0);
+      }
+
+      const newTrade = {
+        type: 'SELL',
+        amount: sellAmount,
+        price: currentPrice,
+        timestamp: new Date(),
+        pnl: pnl
+      };
+
+      setTradeHistory(prev => [...prev, newTrade]);
+
+      toast({
+        title: "Trade Completed",
+        description: `Sold ${sellAmount.toFixed(2)} SOL with PnL: ${pnl.toFixed(2)} SOL`,
+      });
+    }
+  };
 
   return (
     <div className="min-h-screen relative bg-black overflow-hidden">
