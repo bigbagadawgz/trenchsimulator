@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -22,22 +23,23 @@ const MarketSimulator = () => {
   }]);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationFrameRef = useRef<number | null>(null);
+  const lastRenderTime = useRef(Date.now());
   const { toast } = useToast();
 
   useEffect(() => {
     const generateNewCandle = () => {
       const lastCandle = priceHistory[priceHistory.length - 1];
       
-      const baseVolatility = 8;
-      const volatility = baseVolatility * (1 + Math.random() * 0.5);
+      const baseVolatility = 5; // Reduced volatility for smoother movement
+      const volatility = baseVolatility * (1 + Math.random() * 0.3); // Reduced random factor
       const trendStrength = Math.random();
-      const bias = (Math.random() - 0.5) * 4 * trendStrength;
+      const bias = (Math.random() - 0.5) * 2 * trendStrength; // Reduced bias range
       const spikeChance = Math.random();
-      const spikeMultiplier = spikeChance > 0.9 ? (Math.random() * 2 + 1) : 1;
+      const spikeMultiplier = spikeChance > 0.95 ? (Math.random() * 1.5 + 1) : 1; // Reduced spike intensity
       
       const open = lastCandle.close;
       const close = Math.max(1, open + (Math.random() - 0.5 + bias) * volatility * spikeMultiplier);
-      const wickVolatility = volatility * (Math.random() * 0.5 + 0.5);
+      const wickVolatility = volatility * (Math.random() * 0.3 + 0.2); // Reduced wick size
       const high = Math.max(open, close) + Math.random() * wickVolatility * spikeMultiplier;
       const low = Math.min(open, close) - Math.random() * wickVolatility * spikeMultiplier;
       
@@ -57,7 +59,7 @@ const MarketSimulator = () => {
         const newHistory = [...prev, newCandle];
         return newHistory.length > 200 ? newHistory.slice(-200) : newHistory;
       });
-    }, 500);
+    }, 1000); // Increased interval for smoother updates
     
     return () => clearInterval(interval);
   }, [currentPrice]);
@@ -73,15 +75,24 @@ const MarketSimulator = () => {
       const candleHeight = canvas.height - 60;
       const priceToY = (price: number) => candleHeight - ((price - minPrice) / (maxPrice - minPrice) * candleHeight) + 30;
       
+      // Anti-aliasing for smoother lines
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      
+      // Draw wick with smoother line
       ctx.beginPath();
       ctx.strokeStyle = candle.close > candle.open ? '#4AE3B5' : '#FF6B6B';
-      ctx.lineWidth = 1;
+      ctx.lineWidth = 1.5; // Slightly thicker lines for smoother appearance
       ctx.moveTo(x + width / 2, priceToY(candle.high));
       ctx.lineTo(x + width / 2, priceToY(candle.low));
       ctx.stroke();
       
+      // Draw candle body with slight transparency for smoother appearance
       const bodyHeight = Math.max(2, Math.abs(priceToY(candle.open) - priceToY(candle.close)));
-      ctx.fillStyle = candle.close > candle.open ? '#4AE3B5' : '#FF6B6B';
+      const alpha = 0.9; // Slight transparency
+      ctx.fillStyle = candle.close > candle.open 
+        ? `rgba(74, 227, 181, ${alpha})` 
+        : `rgba(255, 107, 107, ${alpha})`;
       ctx.fillRect(
         x,
         priceToY(Math.max(candle.open, candle.close)),
@@ -145,16 +156,25 @@ const MarketSimulator = () => {
     };
 
     const animate = () => {
+      const currentTime = Date.now();
+      const deltaTime = currentTime - lastRenderTime.current;
+      lastRenderTime.current = currentTime;
+
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       
-      ctx.fillStyle = '#111';
+      // Draw background with slight gradient for depth
+      const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+      gradient.addColorStop(0, '#111111');
+      gradient.addColorStop(1, '#0a0a0a');
+      ctx.fillStyle = gradient;
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       
       const prices = priceHistory.flatMap(candle => [candle.high, candle.low]);
-      const minPrice = Math.min(...prices) * 0.95;
-      const maxPrice = Math.max(...prices) * 1.05;
+      const minPrice = Math.min(...prices) * 0.995; // Slightly adjusted range
+      const maxPrice = Math.max(...prices) * 1.005;
       
-      ctx.strokeStyle = '#2C3E50';
+      // Draw grid lines with reduced opacity for smoother look
+      ctx.strokeStyle = 'rgba(44, 62, 80, 0.3)';
       ctx.lineWidth = 0.5;
       for (let i = 0; i < 5; i++) {
         const y = (canvas.height - 40) * (i / 4) + 20;
@@ -164,12 +184,15 @@ const MarketSimulator = () => {
         ctx.stroke();
         
         const price = minPrice + (maxPrice - minPrice) * (1 - i / 4);
-        ctx.fillStyle = '#4AE3B5';
+        ctx.fillStyle = 'rgba(74, 227, 181, 0.8)';
         ctx.font = '12px Segoe UI';
         ctx.fillText(price.toFixed(2), 5, y - 5);
       }
       
+      // Calculate smooth candle width
       const candleWidth = Math.min((canvas.width - 40) / 200, (canvas.width - 40) / priceHistory.length);
+      
+      // Draw candles with smooth animation
       priceHistory.forEach((candle, i) => {
         const x = i * candleWidth + 20;
         if (i < priceHistory.length) {
@@ -177,13 +200,12 @@ const MarketSimulator = () => {
         }
       });
 
-      // Draw average price line using the calculated average
+      // Draw average price line and trade markers
       drawAveragePrice(minPrice, maxPrice);
-      
-      // Draw trade markers
       drawTradeMarkers(20, candleWidth, minPrice, maxPrice);
       
-      ctx.fillStyle = '#4AE3B5';
+      // Draw time labels with slight transparency
+      ctx.fillStyle = 'rgba(74, 227, 181, 0.8)';
       ctx.font = '10px Segoe UI';
       for(let i = 0; i < 5; i++) {
         const index = Math.floor(i * (priceHistory.length / 4));
