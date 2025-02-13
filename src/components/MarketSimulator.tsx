@@ -13,6 +13,11 @@ const MarketSimulator = () => {
   const [investmentPrice, setInvestmentPrice] = useState(0);
   const [tradeHistory, setTradeHistory] = useState<any[]>([]);
   const [showHistory, setShowHistory] = useState(true);
+  const [cryptoPrices, setCryptoPrices] = useState({
+    solana: 0,
+    ethereum: 0,
+    bitcoin: 0
+  });
   const [priceHistory, setPriceHistory] = useState([{
     open: 100,
     close: 100,
@@ -23,6 +28,32 @@ const MarketSimulator = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationFrameRef = useRef<number | null>(null);
   const { toast } = useToast();
+
+  useEffect(() => {
+    const fetchCryptoPrices = async () => {
+      try {
+        const response = await fetch(
+          'https://api.coingecko.com/api/v3/simple/price?ids=solana,ethereum,bitcoin&vs_currencies=usd'
+        );
+        const data = await response.json();
+        setCryptoPrices({
+          solana: data.solana.usd,
+          ethereum: data.ethereum.usd,
+          bitcoin: data.bitcoin.usd
+        });
+      } catch (error) {
+        console.error('Error fetching crypto prices:', error);
+      }
+    };
+
+    // Fetch immediately
+    fetchCryptoPrices();
+
+    // Then fetch every minute
+    const interval = setInterval(fetchCryptoPrices, 60000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
     const generateNewCandle = () => {
@@ -528,6 +559,26 @@ const MarketSimulator = () => {
             </Card>
           </div>
         </div>
+      </div>
+
+      <div className="fixed bottom-4 left-4 z-50">
+        <Card className="bg-black/40 backdrop-blur-xl border border-[#4AE3B5]/20 p-4 space-y-2">
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 rounded-full bg-[#4AE3B5]" />
+            <span className="text-[#4AE3B5] font-medium">SOL:</span>
+            <span className="text-white">${cryptoPrices.solana.toLocaleString()}</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 rounded-full bg-[#627EEA]" />
+            <span className="text-[#627EEA] font-medium">ETH:</span>
+            <span className="text-white">${cryptoPrices.ethereum.toLocaleString()}</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 rounded-full bg-[#F7931A]" />
+            <span className="text-[#F7931A] font-medium">BTC:</span>
+            <span className="text-white">${cryptoPrices.bitcoin.toLocaleString()}</span>
+          </div>
+        </Card>
       </div>
     </div>
   );
