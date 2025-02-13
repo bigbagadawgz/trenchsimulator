@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -293,20 +294,20 @@ const MarketSimulator = () => {
           investment_price: currentPrice
         });
 
-      const trade = {
+      const newTrade = {
         user_id: user.id,
         type: 'BUY',
         amount: amount,
         price: currentPrice,
-        timestamp: new Date(),
+        timestamp: new Date().toISOString(),
         pnl: null
       };
 
       await supabase
         .from('trade_history')
-        .insert([trade]);
+        .insert(newTrade);
 
-      setTradeHistory(prev => [...prev, trade]);
+      setTradeHistory(prev => [...prev, {...newTrade, timestamp: new Date(newTrade.timestamp)}]);
       
       toast({
         title: "Purchase Successful",
@@ -325,7 +326,7 @@ const MarketSimulator = () => {
     if (investment > 0) {
       const sellAmount = (investment * percentage) / 100;
       const pnl = calculateProfitLoss() * (percentage / 100);
-      const returnAmount = investment + pnl;
+      const returnAmount = sellAmount + pnl;
       
       setBalance(prev => prev + returnAmount);
       setInvestment(prev => percentage === 100 ? 0 : prev - sellAmount);
@@ -340,20 +341,20 @@ const MarketSimulator = () => {
           investment_price: percentage === 100 ? 0 : investmentPrice
         });
 
-      const trade = {
+      const newTrade = {
         user_id: user.id,
         type: 'SELL',
         amount: sellAmount,
         price: currentPrice,
-        timestamp: new Date(),
+        timestamp: new Date().toISOString(),
         pnl: pnl
       };
 
       await supabase
         .from('trade_history')
-        .insert([trade]);
+        .insert(newTrade);
 
-      setTradeHistory(prev => [...prev, trade]);
+      setTradeHistory(prev => [...prev, {...newTrade, timestamp: new Date(newTrade.timestamp)}]);
 
       if (user) {
         const { data: currentUserData, error: fetchError } = await supabase
