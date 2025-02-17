@@ -1,5 +1,4 @@
-
-@import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Dancing+Script:wght@400;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -13,7 +12,7 @@
     --card-foreground: 222.2 84% 4.9%;
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
-    --primary: 222.2 47.4% 11.2%;
+    --primary: 142 84% 59%;
     --primary-foreground: 210 40% 98%;
     --secondary: 210 40% 96.1%;
     --secondary-foreground: 222.2 47.4% 11.2%;
@@ -28,28 +27,6 @@
     --ring: 222.2 84% 4.9%;
     --radius: 0.5rem;
   }
- 
-  .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-  }
 }
 
 @layer base {
@@ -58,6 +35,7 @@
   }
   body {
     @apply bg-background text-foreground;
+    font-family: 'JetBrains Mono', monospace;
   }
 }
 
@@ -89,5 +67,48 @@
     text-shadow: 0 0 20px rgba(74,227,181,0.8),
                  0 0 30px rgba(74,227,181,0.6),
                  0 0 40px rgba(74,227,181,0.4);
+  }
+}
+
+.matrix-bg {
+  background: linear-gradient(
+    135deg,
+    rgba(0, 0, 0, 0.95) 0%,
+    rgba(0, 20, 0, 0.95) 100%
+  );
+}
+
+.terminal-text {
+  font-family: 'JetBrains Mono', monospace;
+  color: #4AE3B5;
+  text-shadow: 0 0 5px rgba(74, 227, 181, 0.5);
+}
+
+.glitch-effect {
+  position: relative;
+  animation: glitch 3s infinite;
+}
+
+@keyframes glitch {
+  0% {
+    text-shadow: 0.05em 0 0 #4AE3B5, -0.05em -0.025em 0 #ff00ff;
+  }
+  14% {
+    text-shadow: 0.05em 0 0 #4AE3B5, -0.05em -0.025em 0 #ff00ff;
+  }
+  15% {
+    text-shadow: -0.05em -0.025em 0 #4AE3B5, 0.025em 0.025em 0 #ff00ff;
+  }
+  49% {
+    text-shadow: -0.05em -0.025em 0 #4AE3B5, 0.025em 0.025em 0 #ff00ff;
+  }
+  50% {
+    text-shadow: 0.025em 0.05em 0 #4AE3B5, 0.05em 0 0 #ff00ff;
+  }
+  99% {
+    text-shadow: 0.025em 0.05em 0 #4AE3B5, 0.05em 0 0 #ff00ff;
+  }
+  100% {
+    text-shadow: -0.025em 0 0 #4AE3B5, -0.025em -0.025em 0 #ff00ff;
   }
 }

@@ -46,10 +46,8 @@ const MarketSimulator = () => {
       }
     };
 
-    // Fetch immediately
     fetchCryptoPrices();
 
-    // Fetch every minute instead of every 5 seconds to respect API limits
     const interval = setInterval(fetchCryptoPrices, 60000);
 
     return () => clearInterval(interval);
@@ -136,13 +134,11 @@ const MarketSimulator = () => {
           const x = index * width + 20;
           const y = priceToY(trade.price);
 
-          // Draw circle background
           ctx.beginPath();
           ctx.arc(x + width / 2, y, 8, 0, Math.PI * 2);
           ctx.fillStyle = trade.type === 'BUY' ? '#4AE3B5' : '#FF6B6B';
           ctx.fill();
 
-          // Draw text
           ctx.fillStyle = 'black';
           ctx.font = 'bold 10px Segoe UI';
           ctx.textAlign = 'center';
@@ -158,7 +154,6 @@ const MarketSimulator = () => {
         const candleHeight = canvas.height - 60;
         const y = candleHeight - ((avgPrice - minPrice) / (maxPrice - minPrice) * candleHeight) + 30;
         
-        // Draw dashed line for average price (now in yellow)
         ctx.beginPath();
         ctx.strokeStyle = '#FFD700';
         ctx.lineWidth = 1;
@@ -168,7 +163,6 @@ const MarketSimulator = () => {
         ctx.stroke();
         ctx.setLineDash([]);
 
-        // Draw label (also in yellow)
         ctx.fillStyle = '#FFD700';
         ctx.font = '12px Segoe UI';
         ctx.fillText(`Avg: ${avgPrice.toFixed(2)}`, canvas.width - 100, y - 5);
@@ -208,10 +202,8 @@ const MarketSimulator = () => {
         }
       });
 
-      // Draw average price line using the calculated average
       drawAveragePrice(minPrice, maxPrice);
       
-      // Draw trade markers
       drawTradeMarkers(20, candleWidth, minPrice, maxPrice);
       
       ctx.fillStyle = '#4AE3B5';
@@ -260,7 +252,6 @@ const MarketSimulator = () => {
     const allTrades = [...tradeHistory];
     let lastFullSellIndex = -1;
 
-    // Find the last trade where all positions were sold
     for (let i = allTrades.length - 1; i >= 0; i--) {
       if (allTrades[i].type === 'SELL' && allTrades[i].fullExit) {
         lastFullSellIndex = i;
@@ -268,12 +259,10 @@ const MarketSimulator = () => {
       }
     }
 
-    // Get only the trades after the last full sell
     const relevantTrades = lastFullSellIndex === -1 
       ? allTrades 
       : allTrades.slice(lastFullSellIndex + 1);
 
-    // Calculate average only from buy trades
     const buyTrades = relevantTrades.filter(trade => trade.type === 'BUY');
     if (buyTrades.length === 0) return 0;
 
@@ -343,13 +332,13 @@ const MarketSimulator = () => {
   };
 
   return (
-    <div className="min-h-screen relative bg-black overflow-hidden">
+    <div className="min-h-screen relative bg-black overflow-hidden font-['JetBrains_Mono']">
       <div className="absolute inset-0 z-0">
-        <div className="absolute inset-0 bg-[linear-gradient(40deg,transparent_25%,rgba(74,227,181,0.2)_50%,transparent_75%)] animate-[pulse_15s_ease-in-out_infinite]" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(74,227,181,0.1),transparent_50%)] animate-[pulse_10s_ease-in-out_infinite]" />
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,transparent,rgba(74,227,181,0.05)_50%,transparent)] animate-[slide_20s_linear_infinite]" />
-        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#4AE3B5] to-transparent opacity-50" />
-        <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#4AE3B5] to-transparent opacity-50" />
+        <div className="absolute inset-0 bg-[linear-gradient(40deg,transparent_25%,rgba(74,227,181,0.1)_50%,transparent_75%)] animate-[pulse_15s_ease-in-out_infinite]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(74,227,181,0.05),transparent_50%)] animate-[pulse_10s_ease-in-out_infinite]" />
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,transparent,rgba(74,227,181,0.03)_50%,transparent)] animate-[slide_20s_linear_infinite]" />
+        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#4AE3B5] to-transparent opacity-30" />
+        <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#4AE3B5] to-transparent opacity-30" />
       </div>
 
       <div className="fixed top-4 right-4 z-50 flex gap-2">
@@ -397,7 +386,7 @@ const MarketSimulator = () => {
           <div className="w-full lg:w-[300px] flex flex-col gap-4">
             <Card className="bg-black/40 backdrop-blur-xl border border-[#4AE3B5]/20 shadow-[0_0_15px_rgba(74,227,181,0.1)] p-4">
               <div className="flex items-center gap-2">
-                <span className="text-[#4AE3B5] font-semibold">CA - coming soon</span>
+                <span className="text-[#4AE3B5] font-mono">CA - coming soon</span>
               </div>
             </Card>
 
@@ -515,11 +504,9 @@ const MarketSimulator = () => {
                   />
                 </svg>
               </div>
-              <h1 className="text-5xl font-bold text-[#4AE3B5] tracking-tight relative">
+              <h1 className="text-5xl font-bold text-[#4AE3B5] tracking-tight relative glitch-effect">
                 <span className="absolute inset-0 blur-lg animate-pulse">TRENCH SIMULATOR</span>
-                <span className="relative animate-[text-glow_2s_ease-in-out_infinite] [text-shadow:0_0_10px_rgba(74,227,181,0.5),0_0_20px_rgba(74,227,181,0.3),0_0_30px_rgba(74,227,181,0.2)]">
-                  TRENCH SIMULATOR
-                </span>
+                <span className="relative">TRENCH SIMULATOR</span>
               </h1>
               <p className="font-['Dancing_Script'] text-xl text-[#4AE3B5] animate-[text-glow_2s_ease-in-out_infinite] [text-shadow:0_0_10px_rgba(74,227,181,0.5),0_0_20px_rgba(74,227,181,0.3),0_0_30px_rgba(74,227,181,0.2)]">
                 "Trenching for Dummies"
@@ -531,7 +518,7 @@ const MarketSimulator = () => {
                 ref={canvasRef}
                 width={800}
                 height={400}
-                className="w-full bg-black rounded-lg"
+                className="w-full bg-black/80 rounded-lg"
               />
             </Card>
 
