@@ -584,7 +584,7 @@ const MarketSimulator = () => {
         </div>
       </div>
 
-      <div className="fixed bottom-4 left-4 z-50">
+      <div className="fixed bottom-4 left-4 z-50 hidden md:block">
         <Card className="bg-black/40 backdrop-blur-xl border border-[#4AE3B5]/20 p-4 space-y-3">
           <div className="flex items-center gap-3">
             <img 
