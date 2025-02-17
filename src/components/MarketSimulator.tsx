@@ -87,7 +87,7 @@ const MarketSimulator = () => {
         const newHistory = [...prev, newCandle];
         return newHistory.length > 200 ? newHistory.slice(-200) : newHistory;
       });
-    }, 10000); // Changed from 500ms to 10000ms (10 seconds)
+    }, 500);
     
     return () => clearInterval(interval);
   }, [currentPrice]);
