@@ -47,7 +47,9 @@ const MarketSimulator = () => {
     };
 
     fetchCryptoPrices();
+
     const interval = setInterval(fetchCryptoPrices, 60000);
+
     return () => clearInterval(interval);
   }, []);
 
@@ -201,7 +203,20 @@ const MarketSimulator = () => {
       });
 
       drawAveragePrice(minPrice, maxPrice);
+      
       drawTradeMarkers(20, candleWidth, minPrice, maxPrice);
+      
+      ctx.fillStyle = '#4AE3B5';
+      ctx.font = '10px Segoe UI';
+      for(let i = 0; i < 5; i++) {
+        const index = Math.floor(i * (priceHistory.length / 4));
+        if(priceHistory[index]) {
+          const x = index * candleWidth + 20;
+          const timestamp = new Date(priceHistory[index].timestamp);
+          const timeStr = timestamp.toLocaleTimeString();
+          ctx.fillText(timeStr, x - 20, canvas.height - 5);
+        }
+      }
       
       animationFrameRef.current = requestAnimationFrame(animate);
     };
