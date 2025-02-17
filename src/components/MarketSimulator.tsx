@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -372,7 +373,7 @@ const MarketSimulator = () => {
       <div className="fixed top-4 left-4 z-50 lg:hidden">
         <Card className="bg-black/40 backdrop-blur-xl border border-[#4AE3B5]/20 shadow-[0_0_15px_rgba(74,227,181,0.1)] p-4">
           <div className="flex items-center gap-2">
-            <span className="text-[#4AE3B5] font-mono">CA - coming soon</span>
+            <span className="text-[#4AE3B5] font-mono">CA - FwMzHWVcpCiA7cLnzgFcCVLW2QnJ3kzymY5nNHajpump</span>
           </div>
         </Card>
       </div>
@@ -382,7 +383,7 @@ const MarketSimulator = () => {
           <div className="hidden lg:flex lg:w-[300px] flex-col gap-4">
             <Card className="bg-black/40 backdrop-blur-xl border border-[#4AE3B5]/20 shadow-[0_0_15px_rgba(74,227,181,0.1)] p-4">
               <div className="flex items-center gap-2">
-                <span className="text-[#4AE3B5] font-mono">CA - coming soon</span>
+                <span className="text-[#4AE3B5] font-mono">CA - FwMzHWVcpCiA7cLnzgFcCVLW2QnJ3kzymY5nNHajpump</span>
               </div>
             </Card>
             
