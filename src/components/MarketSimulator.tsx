@@ -383,65 +383,11 @@ const MarketSimulator = () => {
 
       <div className="relative z-10 container mx-auto p-6">
         <div className="flex flex-col gap-8 lg:flex-row">
-          <div className="w-full lg:w-[300px] flex flex-col gap-4">
+          <div className="hidden lg:flex lg:w-[300px] flex-col gap-4">
             <Card className="bg-black/40 backdrop-blur-xl border border-[#4AE3B5]/20 shadow-[0_0_15px_rgba(74,227,181,0.1)] p-4">
               <div className="flex items-center gap-2">
                 <span className="text-[#4AE3B5] font-mono">CA - coming soon</span>
               </div>
-            </Card>
-
-            <Card className="bg-black/40 backdrop-blur-xl border border-[#4AE3B5]/20 shadow-[0_0_15px_rgba(74,227,181,0.1)] p-4">
-              <div className="flex justify-between items-center mb-4">
-                <div className="flex items-center gap-4">
-                  <h2 className="text-xl font-bold text-[#4AE3B5]">Trade History</h2>
-                  <span className={`text-sm font-mono ${calculateTotalPnL() >= 0 ? 'text-[#4AE3B5]' : 'text-red-500'}`}>
-                    ({calculateTotalPnL().toFixed(2)} SOL)
-                  </span>
-                </div>
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  onClick={() => setShowHistory(!showHistory)}
-                  className="text-[#4AE3B5] hover:text-[#4AE3B5]/80"
-                >
-                  {showHistory ? '−' : '+'}
-                </Button>
-              </div>
-              
-              {showHistory && (
-                <div className="space-y-3">
-                  {tradeHistory.slice().reverse().map((trade, index) => (
-                    <Card key={index} className="p-3 bg-black/40 border border-[#4AE3B5]/10">
-                      <div className="flex justify-between mb-1">
-                        <span className={trade.type === 'BUY' ? 'text-[#4AE3B5]' : 'text-red-500'}>
-                          {trade.type}
-                        </span>
-                        <span className="text-gray-400">
-                          {trade.timestamp.toLocaleTimeString()}
-                        </span>
-                      </div>
-                      <div className="text-sm space-y-1">
-                        <div className="flex justify-between">
-                          <span className="text-gray-400">Amount:</span>
-                          <span className="text-white">{trade.amount.toFixed(2)} SOL</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-gray-400">Price:</span>
-                          <span className="text-white">{trade.price.toFixed(2)}</span>
-                        </div>
-                        {trade.pnl !== null && (
-                          <div className="flex justify-between">
-                            <span className="text-gray-400">PnL:</span>
-                            <span className={trade.pnl >= 0 ? 'text-[#4AE3B5]' : 'text-red-500'}>
-                              {formatPnL(trade.pnl)} SOL
-                            </span>
-                          </div>
-                        )}
-                      </div>
-                    </Card>
-                  ))}
-                </div>
-              )}
             </Card>
           </div>
 
@@ -511,6 +457,62 @@ const MarketSimulator = () => {
               <p className="font-['Dancing_Script'] text-xl text-[#4AE3B5] animate-[text-glow_2s_ease-in-out_infinite] [text-shadow:0_0_10px_rgba(74,227,181,0.5),0_0_20px_rgba(74,227,181,0.3),0_0_30px_rgba(74,227,181,0.2)]">
                 "Trenching for Dummies"
               </p>
+            </div>
+
+            <div className="block lg:hidden mb-6">
+              <Card className="bg-black/40 backdrop-blur-xl border border-[#4AE3B5]/20 shadow-[0_0_15px_rgba(74,227,181,0.1)] p-4">
+                <div className="flex justify-between items-center mb-4">
+                  <div className="flex items-center gap-4">
+                    <h2 className="text-xl font-bold text-[#4AE3B5]">Trade History</h2>
+                    <span className={`text-sm font-mono ${calculateTotalPnL() >= 0 ? 'text-[#4AE3B5]' : 'text-red-500'}`}>
+                      ({calculateTotalPnL().toFixed(2)} SOL)
+                    </span>
+                  </div>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    onClick={() => setShowHistory(!showHistory)}
+                    className="text-[#4AE3B5] hover:text-[#4AE3B5]/80"
+                  >
+                    {showHistory ? '−' : '+'}
+                  </Button>
+                </div>
+                
+                {showHistory && (
+                  <div className="space-y-3">
+                    {tradeHistory.slice().reverse().map((trade, index) => (
+                      <Card key={index} className="p-3 bg-black/40 border border-[#4AE3B5]/10">
+                        <div className="flex justify-between mb-1">
+                          <span className={trade.type === 'BUY' ? 'text-[#4AE3B5]' : 'text-red-500'}>
+                            {trade.type}
+                          </span>
+                          <span className="text-gray-400">
+                            {trade.timestamp.toLocaleTimeString()}
+                          </span>
+                        </div>
+                        <div className="text-sm space-y-1">
+                          <div className="flex justify-between">
+                            <span className="text-gray-400">Amount:</span>
+                            <span className="text-white">{trade.amount.toFixed(2)} SOL</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-gray-400">Price:</span>
+                            <span className="text-white">{trade.price.toFixed(2)}</span>
+                          </div>
+                          {trade.pnl !== null && (
+                            <div className="flex justify-between">
+                              <span className="text-gray-400">PnL:</span>
+                              <span className={trade.pnl >= 0 ? 'text-[#4AE3B5]' : 'text-red-500'}>
+                                {formatPnL(trade.pnl)} SOL
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                      </Card>
+                    ))}
+                  </div>
+                )}
+              </Card>
             </div>
 
             <Card className="p-6 bg-black/40 backdrop-blur-xl border border-[#4AE3B5]/20 shadow-[0_0_15px_rgba(74,227,181,0.1)]">
