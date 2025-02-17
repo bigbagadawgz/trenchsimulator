@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -47,9 +48,7 @@ const MarketSimulator = () => {
     };
 
     fetchCryptoPrices();
-
     const interval = setInterval(fetchCryptoPrices, 60000);
-
     return () => clearInterval(interval);
   }, []);
 
@@ -203,7 +202,6 @@ const MarketSimulator = () => {
       });
 
       drawAveragePrice(minPrice, maxPrice);
-      
       drawTradeMarkers(20, candleWidth, minPrice, maxPrice);
       
       animationFrameRef.current = requestAnimationFrame(animate);
